@@ -65,8 +65,10 @@ void Hash::removeItem(std::string key)
     int hash_value = hashFunction(key);
     // create a new node
     Node* entry = table[hash_value];
+    Node* head_ref = table[hash_value];
+
     // if the nodes key is not equal to the key or the entry is NULL then we can't find the key
-    if ((entry->key != key) || (entry == NULL))
+    if (entry == NULL)
     {
         std::cout << "Key not found" <<std::endl;
         return;
@@ -74,27 +76,48 @@ void Hash::removeItem(std::string key)
     // while the entry isnt NULL we need to move to check the next and previous node are NULL
     while (entry != NULL)
     {
-        if (entry->next == NULL)
+        std::cout << "loop" << std::endl;
+        std::cout << entry->key << std::endl;
+        std::cout << key << std::endl;
+        getchar();
+        if(entry->key == key)
         {
-            // if the prev node is NULL
-            if (entry->prev == NULL)
+            std::cout << "KEY" << std::endl;
+            getchar();
+            if (entry->next == NULL && entry->prev == NULL)
             {
                 // set the table and top to NULL and delete the entry and break so we can move to the next node
                 table[hash_value] = NULL;
-                top[hash_value] = NULL;
+                head_ref = NULL;
                 delete entry;
                 break;
             }
-            // otherwise
-            else
+            
+            std::cout << head_ref << std::endl;
+            std::cout << entry << std::endl;
+            getchar();
+            if (head_ref == entry)
             {
-                // set the top to the previous node and the next to NULL
-                top[hash_value] = entry->prev;
-                top[hash_value]->next = NULL;
-                // delete the entry and make the top the entry
-                delete entry;
-                entry = top[hash_value];
+               head_ref = entry->next;
+               table[hash_value] = entry->next;
+               delete entry;
+               break;
+
             }
+            if(entry->next != NULL)
+            {
+                entry->next->prev = entry->prev;
+            }
+            if(entry->prev != NULL)
+            {
+                //3279 Trebol Ln
+                //1944 Scenic Sq
+                entry->prev->next = entry->next;
+            }
+            std::cout << "deleteing entry" << std::endl;
+            getchar();
+            delete entry;
+            return;
         }
         // move to next node
         entry = entry->next;
