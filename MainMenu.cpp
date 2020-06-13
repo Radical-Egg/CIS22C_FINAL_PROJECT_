@@ -190,6 +190,12 @@ int main() {
                 dataHash->removeItem(temp.key);
                 break;
             } case 'C': {
+                cout << "Search for Entry in the Hash Table by Key (Address): " << endl;
+                clearInput();
+                getline(cin, temp.key);
+
+                dataHash->searchItem(temp.key);
+
                 break;
             } case 'D': {
                 // printing options

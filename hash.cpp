@@ -76,14 +76,10 @@ void Hash::removeItem(std::string key)
     // while the entry isnt NULL we need to move to check the next and previous node are NULL
     while (entry != NULL)
     {
-        std::cout << "loop" << std::endl;
-        std::cout << entry->key << std::endl;
-        std::cout << key << std::endl;
-        getchar();
+        // checking to see if the keys match
         if(entry->key == key)
         {
-            std::cout << "KEY" << std::endl;
-            getchar();
+            // if the node is alone, i.e not in a linked list
             if (entry->next == NULL && entry->prev == NULL)
             {
                 // set the table and top to NULL and delete the entry and break so we can move to the next node
@@ -92,10 +88,7 @@ void Hash::removeItem(std::string key)
                 delete entry;
                 break;
             }
-            
-            std::cout << head_ref << std::endl;
-            std::cout << entry << std::endl;
-            getchar();
+            // if the node is the first entry in the linked list
             if (head_ref == entry)
             {
                head_ref = entry->next;
@@ -104,18 +97,19 @@ void Hash::removeItem(std::string key)
                break;
 
             }
+            // if the next node is not null
             if(entry->next != NULL)
             {
                 entry->next->prev = entry->prev;
             }
+            // if the prev node is not null
             if(entry->prev != NULL)
             {
                 //3279 Trebol Ln
                 //1944 Scenic Sq
                 entry->prev->next = entry->next;
             }
-            std::cout << "deleteing entry" << std::endl;
-            getchar();
+            std::cout << "entry deleted" << std::endl;
             delete entry;
             return;
         }
@@ -147,11 +141,12 @@ void Hash::searchItem(std::string key)
             // if the check is true let the user know the values assosicated with that key
             if (check)
             {
-                std::cout << "Element found at key" << key << "is " << entry->price << std::endl;
-                std::cout << "Element found at key" << key << "is " << entry->beds << std::endl;
-                std::cout << "Element found at key" << key << "is " << entry->baths << std::endl;
-                std::cout << "Element found at key" << key << "is " << entry->prop_type << std::endl;
-                std::cout << "Element found at key" << key << "is " << entry->area << std::endl;
+                std::cout << "Element found at key " << key << " is " << entry->price << std::endl;
+                std::cout << "Element found at key " << key << " is " << entry->beds << std::endl;
+                std::cout << "Element found at key " << key << " is " << entry->baths << std::endl;
+                std::cout << "Element found at key " << key << " is " << entry->prop_type << std::endl;
+                std::cout << "Element found at key " << key << " is " << entry->area << std::endl;
+                return;
             }
             // move to the next node
             entry = entry->next;
