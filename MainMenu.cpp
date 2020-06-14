@@ -1,253 +1,337 @@
-//
-//  main.cpp
-//  FinalProject
-//
-//  Created by Kevin Jin on 6/6/20.
-//  Copyright © 2020 Kevin Jin. All rights reserved.
-//
+/*
+ assumptions:
+ 1. The CSV file taken in has a header line.
+ */
 #include <iostream>
 #include <string>
 #include <cmath>
 #include <fstream>
 #include <limits>
 #include "hash.h"
+#include "BST.h"
 #include "Parser.h"
-#include "House.h"
+#include "Inventory.h"
 
-const int NUM_FIELDS = 6;
-
+//TODO: delete from file when deleted house
+//TODO: add to file when added
 
 using namespace std;
 
-Hash* dataHash = new Hash();
+const int NUM_FIELDS = 6;
+Hash<House>* dataHash = new Hash<House>();
+BST<House> dataTree;
+Inventory inv;
 
-void clearInput()
-{
+/*
+ Determines if string passed is a numer.
+ Pre: str - string to be evaluated
+ Post: None
+ Return: true - string consists only of digits
+         false - string has a character that is not a digit
+ */
+bool isNumber(const std::string str) {
+    if (str == "")
+        return false;
+
+    for (unsigned int idx = 0; idx < str.size(); idx++)
+        if (!isdigit(str[idx]))
+            return false;
+        
+    return true;
+}
+
+/*
+ Clears the input and ignores one line of data.
+ Pre: None
+ Post: input stream skips to next line
+ Return: None
+ */
+void clearInput() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-void createDataFromCSV()
-{
-    Parser* CSVParser = new Parser(1, NUM_FIELDS);
+/*
+ Reads data from CSV into hash table and bst, skipping the header line.
+ Pre: None
+ Post: data from CSV in hash table and bst
+ Return: None
+ */
+void createDataFromCSV() {
+    Parser* CSVParser = new Parser(1, NUM_FIELDS);  // 1 indicates 1 entry from csv file taken
     House* newHouse = nullptr;
     ifstream csvFile;
     string filePath;
-    int numData;
-
-    cout << "Enter CSV file path: ";
     
-    do
-    {
+    cout << "Enter CSV file path: ";
+   
+    do {
         cin >> filePath;
         csvFile.open(filePath);
         if (!csvFile.is_open())
-        {
             cout << "Invalid file path. Please try again: ";
-        }
         clearInput();
-    } 
-    while (!csvFile.is_open());
+    } while (!csvFile.is_open());
 
-    cout << "How many data to read from the CSV file: ";
-
-    while (!(cin >> numData))
-    {
+    // counts total number of houses in file
+    ifstream helperCSVFile;
+    helperCSVFile.open(filePath);
+    string helperCntData;
+    int totalData = 0;
+    while (getline(helperCSVFile, helperCntData))
+        ++totalData;
+    --totalData;
+    
+    int numData = 0;
+    cout << "Enter the number of houses to read from the CSV file: ";
+    while (!(cin >> numData) || numData > totalData || numData < 0) {
         cout << "Invalid input. Please try again: ";
         clearInput();
     }
-
-    for (int i = 0; i < numData; i++)
-    {
-        try
-        {
+    
+    // TODO: bad_alloc
+    // initialize inventory object
+    inv = Inventory(filePath);
+    
+    // look over header line that takes up one from numData
+    for (int i = 0; i < numData + 1; i++) {
+        try {
+            // read line and set it to inputStr
             string inputStr;
-            if (!getline(csvFile, inputStr))
-            {
-                inputStr = "";
-            }
-            CSVParser->setData(0, inputStr);
+            getline(csvFile, inputStr);
+            //cout << inputStr << endl;
+            
+            // skip the header line of csv file
+            if (i == 0) continue;
+            
+            CSVParser->setData(0, inputStr);    // 0 signifies 1 data entry set
             string* curData = CSVParser->getData(0);
             newHouse = new House(curData[0], stol(curData[1]), stoi(curData[2]), stoi(curData[3]), curData[4], stoi(curData[5]));
-            dataHash->addItem(newHouse->getAddress(), newHouse->getPrice(), newHouse->getBeds(), newHouse->getBaths(), newHouse->getType(), newHouse->getArea());
-            //dataBST->insert(newHouse);
+            inv.addHouse(*newHouse, false);
+            
+            /*
+             adding house to hash table:
+             - integer precision loss okay because price only used as key
+             - when truncating long long to int, deletes excess 32 bits
+            */
+            dataHash->addItem(newHouse->getAddress(), newHouse);
+            
+            // adding house to BST
+            dataTree.insert(newHouse);
+        } catch (const std::invalid_argument& e) {
+            cout << "Error parsing data " << i + 1 << " (" << e.what() << "). Data is not added." << endl;
         }
-        catch (const std::invalid_argument& e)
-        {
-            cout << "Error parsing data " << i + 1 << " (" << e.what() << ")." << endl;
-        }
-
+        
+        // delete newHouse;
+        // newHouse = nullptr;
     }
 
-    //dataHash->printTable();
-
-    clearInput();
+    
     delete CSVParser;
-    delete newHouse;
+    clearInput();
 }
 
-// main and menu function with input checking
 int main() {
-    // loading data into hash table
+    // loading data
+    
     createDataFromCSV();
 
     // flag for menu
     bool flag = true;
-
+    
     // main menu
     while (flag)
     {
         // menu options
+        cout << endl;
         cout << "San Jose Housing Listing Service" << endl;
         cout << "--------------------------------" << endl;
-        cout << "A. Add new data" << endl;
-        cout << "B. Delete data" << endl;
-        cout << "C. Search and display data using the primary key" << endl;
-        cout << "D. List data in hash table sequence" << endl;
-        cout << "E. List data in sorted key sequence" << endl;
-        cout << "F. Print indented tree" << endl;
-        cout << "G. Efficiency" << endl;
-        // TODO: team choice menu option
-        cout << "H. Team choice menu option" << endl;
-        cout << "X. Quit" << endl << endl;
-        cout << "Enter a Choice: " << endl;
+        cout << "1. Add house" << endl;
+        cout << "2. Delete house" << endl;
+        cout << "3. Search house by address" << endl;
+        cout << "4. List houses in hash table sequence" << endl;
+        cout << "5. List house price in ascending order" << endl;
+        cout << "6. List house price in given range" << endl;
+        cout << "7. Print house price indented tree" << endl;
+        cout << "8. Efficiency" << endl;
+        cout << "9. Quit" << endl << endl;
+        cout << "Enter your choice: ";
 
         //clearInput();
-        // user response variable, temp node(node is a struct that has the housing data) 
-        char userResponse;
-        Node temp;
-        userResponse = toupper(getchar()); // touppper the response so it is not case sensitive
-
+        // user response variable
+        string checkUserResponse;
+        int userResponse;
+        getline(cin, checkUserResponse);
+        while (!isNumber(checkUserResponse) || (stoi(checkUserResponse) < 1 || stoi(checkUserResponse) > 9)) {
+            cout << "Invalid input. Please enter a number (1-9): ";
+            getline(cin, checkUserResponse);
+        }
+        userResponse = stoi(checkUserResponse);
+        
+        string key, type;
+        int price, beds, baths, area;
+        
+        
         switch (userResponse) {
-            case 'A': { // adding data to hash table
-                cout << "Add data to the Hash Table" << endl;
-                clearInput(); // clear buffer and enter values - the while loop makes certain the value is of int
-
-                // key
-                cout << "Enter Key Value: ";
-                getline(cin, temp.key);
-
+            case 1: { // adding data to hash table
+                // address
+                cout << "Enter the address: ";
+                getline(cin, key);
+                
                 // price
-                cout << "Enter Price: ";
-                while (!(cin >> temp.price)) // while loop to ensure user puts in int values
+                cout << "Enter the price: ";
+                while (!(cin >> price)) // while loop to ensure user puts in int values
                 {
-                    cout << "input is not valid, integers only" << endl;
-                    cout << "Enter Price: ";
+                    cout << "Invalid input. Please enter a whole number: " << endl;
                     cin.clear();
                     cin.ignore(123, '\n');
                 }
 
                 // beds
-                cout << "Enter Amount of beds: ";
-                while (!(cin >> temp.beds)) // while loop to ensure user puts in int values
+                cout << "Enter the number of beds: ";
+                while (!(cin >> beds)) // while loop to ensure user puts in int values
                 {
-                    cout << "input is not valid, integers only" << endl;
-                    cout << "Enter Beds: ";
+                    cout << "Invalid input. Please enter a whole number: " << endl;
                     cin.clear();
                     cin.ignore(123, '\n');
                 }
 
                 // baths
-                cout << "Enter Amount of Baths: ";
-                while (!(cin >> temp.baths)) // while loop to ensure user puts in int values
+                cout << "Enter the number of baths: ";
+                while (!(cin >> baths)) // while loop to ensure user puts in int values
                 {
-                    cout << "input is not valid, integers only" << endl;
-                    cout << "Enter Baths: ";
+                    cout << "Invalid input. Please enter a whole number: " << endl;
                     cin.clear();
                     cin.ignore(123, '\n');
                 }
 
                 // prop type
-                cout << "Enter Property Type: ";
+                cout << "Enter the property type: ";
                 clearInput();
-                getline(cin, temp.prop_type);
+                getline(cin, type);
                 
                 // area
-                cout << "Enter Area: ";
-                while (!(cin >> temp.area)) // while loop to ensure user puts in int values
+                cout << "Enter the area (sq. ft.): ";
+                while (!(cin >> area)) // while loop to ensure user puts in int values
                 {
-                    cout << "input is not valid, integers only" << endl;
-                    cout << "Enter Area: ";
+                    cout << "Invalid input. Please enter a whole number: " << endl;
                     cin.clear();
                     cin.ignore(123, '\n');
                 }
-
-                // add item to hash table
-                dataHash->addItem(temp.key, temp.price, temp.beds, temp.baths, temp.prop_type, temp.area);
-            
-                // getchar() does the same as system("pause") I am on linux and don't have a system pause so please swap this out with system("pause")
-                cout << "Press Any Key to Continue" << endl;
-                getchar();
-                getchar();
-
-                break;
-            } case 'B': {
-                // deleting items from hash
-                cout << "Delete Data from Hash Table" << endl;
-                cout << "Enter the key you would like to delete" << endl;
-                // enter the key
+                
                 clearInput();
-                getline(cin, temp.key);
 
-                // remove the data
-                dataHash->removeItem(temp.key);
+                // add item to hash table and bst
+                House* toInsert = new House(key, price, beds, baths, type, area);
+                dataHash->addItem(key, toInsert);
+                dataTree.insert(toInsert);
+                
                 break;
-            } case 'C': {
-                cout << "Search for Entry in the Hash Table by Key (Address): " << endl;
-                clearInput();
-                getline(cin, temp.key);
-
-                dataHash->searchItem(temp.key);
-
-                break;
-            } case 'D': {
-                // printing options
-                cout << "Select from the following:\nA. Print Hash Table\nB. Print Bucket" << endl;
-
-                // get user input for what they want to print
-                clearInput();
-                userResponse = toupper(getchar());
-                // nested menu
-                switch(userResponse)
-                {
-                    // print the whole hash table
-                    case 'A':
-                        dataHash->printTable();
-                        break;
-                    case 'B':
-                        // print the table by searching for bucket 
-                        cout << "Input the Bucket you are looking for: ";
-                        clearInput();
-                        getline(cin, temp.key);
-                        dataHash->printItemsInBucket(temp.key);
-
-                        break;
-                    default:
-                        cout << "Not a Valid option" << endl;
-                        break;
+            } case 2: {
+                cout << "Enter the address of the house to delete: ";
+                getline(cin, key);
+                
+                // remove from bst                
+                auto result = dataHash->getNode(key);
+                if (result) {
+                    House tmp;
+                    tmp.setPrice(result->data->getPrice());
+                    dataTree.remove(&tmp);
+                    std::cout << "House at " << key << " deleted." << std::endl;
                 }
-                // getchar() does the same as system("pause") I am on linux and don't have a system pause so please swap this out with system("pause")
-                cout << "Press Any Key to go back to Main Menu" << endl;
-                getchar();
-                getchar();
+                
+                // remove from hash
+                dataHash->removeItem(key);
+                
                 break;
-            } case 'E': {
+            } case 3: {
+                cout << "Enter the address: ";
+                getline(cin, key);
+
+                dataHash->searchItem(key);
+                
                 break;
-            } case 'F': {
+            } case 4: {
+                bool innerFlag = true;
+                while (innerFlag != false) {
+                    // printing options
+                    cout << endl;
+                    cout << "1. Print bucket index, number of items, and key\n2. Print specified bucket\n3. Print entire hash table\n4. Return to main menu" << endl << endl;
+                    cout << "Enter your choice: ";
+                    
+                    // validate user input
+                    string checkUserResponse;
+                    int userResponse;
+                    getline(cin, checkUserResponse);
+                    while (!isNumber(checkUserResponse) || (stoi(checkUserResponse) < 1 || stoi(checkUserResponse) > 4)) {
+                        cout << "Invalid input. Please enter a number (1-4): ";
+                        getline(cin, checkUserResponse);
+                    }
+                    userResponse = stoi(checkUserResponse);
+                    
+                    // nested menu
+                    switch(userResponse) {
+                        // print the whole hash table
+                        case 1:
+                            dataHash->printTable();
+                            break;
+                        case 2:
+                            // print the table by searching for bucket
+                            cout << "Input the bucket key: ";
+                            getline(cin, key);
+                            dataHash->printItemsInBucket(key);
+                            break;
+                        case 3:
+                            dataHash->printEntireTable();
+                            break;
+                        case 4:
+                            innerFlag = false;
+                            break;
+                        default:
+                            cout << "Input not valid!" << endl;
+                            break;
+                    }
+                }
                 break;
-            } case 'G': {
+            } case 5: {
+                dataTree.printBySortedKey(cout);
                 break;
-            } case 'H': {
+            } case 6: {
+                // initialize min and max
+                long min, max;
+                cout << "Enter the minimum price in the range: ";
+                while (!(cin >> min)) {
+                    cout << "Invalid input. Please try again: ";
+                    clearInput();
+                }
+                cout << "Enter the maximum price in the range: ";
+                while (!(cin >> max)) {
+                    cout << "Invalid input. Please try again: ";
+                    clearInput();
+                }
+                // create min and max housing objects
+                House minHouse;
+                minHouse.setPrice(min);
+                House maxHouse;
+                maxHouse.setPrice(max);
+                // pass min and max housing objects into printInRange
+                dataTree.printInRange(minHouse, maxHouse);
+                clearInput();
                 break;
-            } case 'X': {
+            } case 7: {
+                dataTree.printIndentedTree(cout);
+                break;
+            } case 8: {
+                cout << "Unfinished..." << endl;
+                break;
+            } case 9: {
                 flag = false;
                 break;
             } default: {
-                cout << "Input Not Valid!" << endl;
+                cout << "Input not valid!" << endl;
                 break;
             }
         }
-
     }
     return 0;
 }

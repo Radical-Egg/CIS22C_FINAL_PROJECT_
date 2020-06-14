@@ -4,7 +4,7 @@
 class Parser
 {
 	protected:
-		std::string** data;
+		std::string** data;     // array of array of strings, where each inner array represents 1 data entry
 		std::string delimiter;
 		int numField;
 		int numData;
@@ -167,7 +167,7 @@ Parser::Parser(int numData, int numField, std::string delimiter)
 	this->numData = numData;
 	this->delimiter = delimiter;
 
-	data = new std::string * [numData];
+	data = new std::string*[numData];
 	for (int i = 0; i < numData; i++)
 	{
 		data[i] = nullptr;
@@ -179,7 +179,7 @@ Parser::Parser(int numData, int numField, std::string delimiter)
 Parser::~Parser()
 {
 	clearData();
-	delete[] data;
+	delete [] data;
 }
 
 void Parser::clearData()
@@ -276,7 +276,13 @@ bool Parser::setData(const int lineNum, const std::string input)
 	{
 		return false;
 	}
-
+    
+    // original data at position deleted
+    try {
+        delete [] data[lineNum];
+    } catch (...) {
+        std::cout << "ERROR: Already deleted" << std::endl;
+    }
 	data[lineNum] = splitToArr(input, delimiter, numField);
 
 	return true;
