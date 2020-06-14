@@ -20,7 +20,12 @@ using namespace std;
 const int NUM_FIELDS = 6;
 Hash<House>* dataHash = new Hash<House>();
 BST<House> dataTree;
-Inventory inv;
+
+// The following array is for the inventory:
+// - doesn't matter what House array size initialized to since addHouse function automatically increments the size, similar to a vector
+// - dataInv has empty string which will be changed to filePath in the createData function
+House* inventory = new House[25];
+Inventory dataInv(25, inventory, 0, "");
 
 /*
  Determines if string passed is a numer.
@@ -89,9 +94,7 @@ void createDataFromCSV() {
         clearInput();
     }
     
-    // TODO: bad_alloc
-    // initialize inventory object
-    inv = Inventory(filePath);
+    dataInv.setHouseData(filePath);
     
     // look over header line that takes up one from numData
     for (int i = 0; i < numData + 1; i++) {
@@ -106,8 +109,7 @@ void createDataFromCSV() {
             
             CSVParser->setData(0, inputStr);    // 0 signifies 1 data entry set
             string* curData = CSVParser->getData(0);
-            newHouse = new House(curData[0], stol(curData[1]), stoi(curData[2]), stoi(curData[3]), curData[4], stoi(curData[5]));
-            inv.addHouse(*newHouse, false);
+            newHouse = new House(curData[0], stoll(curData[1]), stoi(curData[2]), stoi(curData[3]), curData[4], stoi(curData[5]));
             
             /*
              adding house to hash table:
@@ -118,6 +120,9 @@ void createDataFromCSV() {
             
             // adding house to BST
             dataTree.insert(newHouse);
+            
+            // adding house to inventory's array: set to false to prevent rewriting of file
+            dataInv.addHouse(*newHouse, false);
         } catch (const std::invalid_argument& e) {
             cout << "Error parsing data " << i + 1 << " (" << e.what() << "). Data is not added." << endl;
         }
@@ -125,7 +130,8 @@ void createDataFromCSV() {
         // delete newHouse;
         // newHouse = nullptr;
     }
-
+    
+    dataInv.updateHouseData();
     
     delete CSVParser;
     clearInput();
@@ -158,19 +164,15 @@ int main() {
         cout << "Enter your choice: ";
 
         //clearInput();
-        // user response variable
-        string checkUserResponse;
+        // user response variabl
         int userResponse;
-        getline(cin, checkUserResponse);
-        while (!isNumber(checkUserResponse) || (stoi(checkUserResponse) < 1 || stoi(checkUserResponse) > 9)) {
+        while (!(cin >> userResponse)) {
             cout << "Invalid input. Please enter a number (1-9): ";
-            getline(cin, checkUserResponse);
+            clearInput();
         }
-        userResponse = stoi(checkUserResponse);
         
         string key, type;
         int price, beds, baths, area;
-        
         
         switch (userResponse) {
             case 1: { // adding data to hash table
@@ -221,10 +223,11 @@ int main() {
                 
                 clearInput();
 
-                // add item to hash table and bst
+                // add item to hash table, bst, and inventory
                 House* toInsert = new House(key, price, beds, baths, type, area);
                 dataHash->addItem(key, toInsert);
                 dataTree.insert(toInsert);
+                dataInv.addHouse(*toInsert);
                 
                 break;
             } case 2: {
@@ -243,6 +246,9 @@ int main() {
                 // remove from hash
                 dataHash->removeItem(key);
                 
+                // remove from inventory
+                dataInv.deleteHouse(key);
+                
                 break;
             } case 3: {
                 cout << "Enter the address: ";
@@ -258,16 +264,12 @@ int main() {
                     cout << endl;
                     cout << "1. Print bucket index, number of items, and key\n2. Print specified bucket\n3. Print entire hash table\n4. Return to main menu" << endl << endl;
                     cout << "Enter your choice: ";
-                    
-                    // validate user input
-                    string checkUserResponse;
+
                     int userResponse;
-                    getline(cin, checkUserResponse);
-                    while (!isNumber(checkUserResponse) || (stoi(checkUserResponse) < 1 || stoi(checkUserResponse) > 4)) {
-                        cout << "Invalid input. Please enter a number (1-4): ";
-                        getline(cin, checkUserResponse);
+                    while (!(cin >> userResponse)) {
+                        cout << "Invalid input. Please enter a number (1-9): ";
+                        clearInput();
                     }
-                    userResponse = stoi(checkUserResponse);
                     
                     // nested menu
                     switch(userResponse) {
@@ -288,7 +290,7 @@ int main() {
                             innerFlag = false;
                             break;
                         default:
-                            cout << "Input not valid!" << endl;
+                            cout << "Input not valid! Number out of range." << endl;
                             break;
                     }
                 }
@@ -322,13 +324,23 @@ int main() {
                 dataTree.printIndentedTree(cout);
                 break;
             } case 8: {
-                cout << "Unfinished..." << endl;
+                cout << endl;
+                cout << "Hash Table" << endl;
+                cout << "----------" << endl;
+                cout << "Load factor: " << dataHash->getNodeCnt() / double(tableSize) << endl
+                    << "Longest linked list: " << dataHash->getLongestListSize() << endl
+                    << "Average number of nodes in linked lists: " << dataHash->getAverageListSize() << endl
+                    << "Number of collisions in hash table" << endl;
+                cout << "Binary Search Tree" << endl;
+                cout << "------------------" << endl
+                    << "Average number of operations to insert in BST: " << endl
+                    << "Average number of operations to search in BST: " << endl << endl;
                 break;
             } case 9: {
                 flag = false;
                 break;
             } default: {
-                cout << "Input not valid!" << endl;
+                cout << "Input not valid! Number out of range." << endl;
                 break;
             }
         }
