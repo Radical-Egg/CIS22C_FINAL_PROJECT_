@@ -35,19 +35,21 @@ void createDataFromCSV()
     string filePath;
     int numData;
 
-    cout << "Enter CSV file path: " << endl;
+    cout << "Enter CSV file path: ";
     
-    
-    cin >> filePath;
-    csvFile.open(filePath);
-
-    if (!csvFile.is_open())
+    do
     {
-        cout << "Invalid file path. Please try again: ";
-    }
-    clearInput();
+        cin >> filePath;
+        csvFile.open(filePath);
+        if (!csvFile.is_open())
+        {
+            cout << "Invalid file path. Please try again: ";
+        }
+        clearInput();
+    } 
+    while (!csvFile.is_open());
 
-    cout << "How many data to read from the CSV file: " << endl;
+    cout << "How many data to read from the CSV file: ";
 
     while (!(cin >> numData))
     {
@@ -72,13 +74,14 @@ void createDataFromCSV()
         }
         catch (const std::invalid_argument& e)
         {
-            cout << "Error parsing data " << i << " (" << e.what() << "). Please try again: ";
+            cout << "Error parsing data " << i + 1 << " (" << e.what() << ")." << endl;
         }
 
     }
 
     //dataHash->printTable();
 
+    clearInput();
     delete CSVParser;
     delete newHouse;
 }
