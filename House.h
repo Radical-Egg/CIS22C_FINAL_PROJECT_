@@ -62,36 +62,12 @@ public:
         return area;
     }
     
-    friend std::ostream& operator << (std::ostream&, const House &right);
+    bool operator < (const House&) const;
+    bool operator > (const House&) const;
+    bool operator >= (const House&) const;
+    bool operator <= (const House&) const;
+
+    friend std::ostream& operator << (std::ostream&, const House&);
 };
-
-House::House() {
-    address = "";
-    price = 0;
-    beds = 0;
-    baths = 0;
-    type = "";
-    area = 0;
-}
-
-House::House(std::string adrs, long p, int bds, int bths, std::string t, int a) {
-    address = adrs;
-    price = p;
-    beds = bds;
-    baths = bths;
-    type = t;
-    area = a;
-}
-
-std::ostream& operator << (std::ostream& out, const House &right) {
-        out << std::left
-            << std::setw(40) << right.address
-            << std::setw(10) << right.price
-            << std::setw(5) << right.beds
-            << std::setw(5) << right.baths
-            << std::setw(20) << right.type
-            << std::setw(10) << right.area;
-        return out;
-}
 
 #endif /* HOUSE_H */
