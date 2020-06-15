@@ -18,13 +18,6 @@ struct Node
     // data
     
     T* data;
-    /*
-    int price;
-    int beds;
-    int baths;
-    std::string prop_type;
-    int area;*/
-    
     // pointer to next
     Node<T>* next;
     // pointer to prev
@@ -204,12 +197,6 @@ void Hash<T>::addItem(std::string key, T* data) {
         entry = new Node<T>;
         entry->key = key;
         entry->data = data;
-        /*
-        entry->price = price;
-        entry->beds = beds;
-        entry->baths = baths;
-        entry->prop_type = prop_type;
-        entry->area = area;*/
         // set the next and prev to NULL
         entry->next = NULL;
         entry->prev = NULL;
@@ -227,13 +214,6 @@ void Hash<T>::addItem(std::string key, T* data) {
         entry = new Node<T>;
         entry->key = key;
         entry->data = data;
-        
-        /*
-        entry->price = price;
-        entry->beds = beds;
-        entry->baths = baths;
-        entry->prop_type = prop_type;
-        entry->area = area;*/
         entry->next = NULL;
         entry->prev = top[hash_value];
         top[hash_value]->next = entry;
@@ -288,8 +268,6 @@ void Hash<T>::removeItem(std::string key)
             // if the prev node is not null
             if(entry->prev != NULL)
             {
-                //3279 Trebol Ln
-                //1944 Scenic Sq
                 entry->prev->next = entry->next;
             }
             delete entry;
