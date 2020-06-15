@@ -11,51 +11,6 @@ Inventory::Inventory() {
   HouseData = "";
 }
 
-//Inventory::Inventory(std::string HouseData) {
-//  this->HouseData = HouseData;
-//  invSize = 0;
-//
-//  std::ifstream dataFile(HouseData, std::ios::in);
-//
-//  if (dataFile.is_open()) {
-//    char tmpChar1 = ' ';
-//    char tmpChar2 = ' ';
-//
-//    dataFile.get(tmpChar1);
-//    dataFile.get(tmpChar2);
-//
-//    // Looks at file to see how large to make the House array
-//    while (!dataFile.eof()) {
-//      // Due to layout of file, two newlines in a row signify a new House
-//      // Since there is an extra line between each House in the file
-//      if (tmpChar1 == '\n' && tmpChar2 == '\n') {
-//        invSize++;
-//      }
-//
-//      // unget() goes back one character in the file
-//      dataFile.unget();
-//      dataFile.get(tmpChar1);
-//      dataFile.get(tmpChar2);
-//    }
-//
-//    invArrSize = invSize;
-//    inventory = new House[invArrSize];
-//
-//    dataFile.clear();
-//    dataFile.seekg(0, std::ios::beg);
-//
-//    // This is where the dataFile is actually copied into the House
-//    for (int idx = 0; idx < invSize; idx++) {
-//      dataFile >> inventory[idx];
-//    }
-//
-//    dataFile.close();
-//  }
-//  else {
-//    std::cout << "Error: file path not found\n";
-//  }
-//}
-
 Inventory::Inventory(int invArrSize, House inventory[],
   int invSize, std::string HouseData) {
   this->invArrSize = invArrSize;
@@ -104,6 +59,13 @@ House Inventory::searchHouse(std::string address) const {
 void Inventory::addHouse(House house, bool update) {
     ++invSize;
 
+    for (int idx = 0; idx < invSize - 1; idx++) {
+        if (inventory[idx].getAddress() == house.getAddress()) {
+            std::cout << "House already in inventory!" << std::endl;
+            return;
+        }
+    }
+    
     if (invSize > invArrSize) {
         House* tempInv = new House[invArrSize + 50];
         for (int i = 0; i < invArrSize; i++) {
@@ -128,7 +90,6 @@ void Inventory::addHouse(std::string address, long price, int beds, int baths, s
 }
 
 bool Inventory::deleteHouse(std::string address) {
-    std::cout << invSize << std::endl;
     int tempSize = invSize;
     for (int idx = 0; idx < invSize; ++idx) {
         if (inventory[idx].getAddress() == address) {
@@ -148,6 +109,7 @@ bool Inventory::deleteHouse(std::string address) {
 void Inventory::updateHouseData() {
   std::ofstream out;
   out.open(HouseData);
+    
   if (out.is_open()) {
       out << "address,price,beds,baths,prop_type,area" << std::endl;
     for (int idx = 0; idx < invSize; ++idx) {
@@ -156,7 +118,7 @@ void Inventory::updateHouseData() {
         << inventory[idx].getBeds() << ","
         << inventory[idx].getBaths() << ","
         << inventory[idx].getType() << ","
-        << inventory[idx].getArea() << "," << std::endl;
+        << inventory[idx].getArea() << std::endl;
     }
   }
   else {
