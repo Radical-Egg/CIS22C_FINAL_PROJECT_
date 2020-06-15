@@ -1,7 +1,115 @@
 /*
+ Kevin Jin
+ 
+ lab number: final project
+ authors: Kevin Jin, Lance Carrido, Jaymen Luther, Nguyen Nhat Cong Le
+ description: The project is a house listing service providing the address, price, beds, baths, type, and area of houses in San Jose, with options to filter by address and price.
+ */
+/*
  assumptions:
  1. The CSV file taken in has a header line.
+ 
+ pseudocode:
+ initialize the constant NUM_FIELDS to be read from csv as 6
+ initialize the numData read from csv as 0
+ initialize dataHash to its default
+ declare the dataTree
+ initialize inventory as an array of House objects
+ initialize an empty dataInv with a size of 25, taking in inventory
+ 
+ define clearInput function to clear the cin object and ignore extraneous input
+ define createDataFromSCV function:
+    initialize CSVParser object to take in 1 entry from csv file with NUM_FIELDS
+    initialize newHouse to store temporary house pointers to nullptr
+    declare csvFile ifstream object
+    declare filePath string object to take in filePath
+    prompt user to enter the csv file path
+    do:
+        set filePath to user input
+        open csvFile with filePath
+        if the csvFile is not open, prompt user to enter again
+        clearInput
+    while csvFile is not open
+    open ifstream helperCSVFile object, initialize helperCntData string object, initialize totalData
+    while getline function executes to retrieve line from file:
+        increment totalData
+    decrement totalData to account for header line in csv
+    prompt user to enter number of houses to read from csv file
+    while the input is not within the number of houses in the csv or the input is not a number:
+        state the input is invalid, and prompt the user to try again
+        clearInput
+    set the house data in the inventory by passing the filePath
+    for the time i is less than numData + 1, increment i:
+        try:
+            declare inputStr string to store entry from csvFile from getline
+            if i equals 0, continue
+            CSVParser takes in 1 line of data from inputStr and splits it
+            an array of strings curData stores the data the CSVParser split
+            newHouse is dynamically allocated with a house object of the data in curData
+            dataHash takes in newHouse pointer given the address as the key
+            dataTree takes in newHouse pointer
+            dataInv takes in newHouse object, set to false to prevent premature rewriting of file
+        catch when invalid argument of house:
+            output the error and the data not added
+    update csv file data with what data is taken in using inventory object
+    delete CSVParser object
+    clearInput
+ 
+    define main function:
+        call createDataFromCSV
+        set numInserted (number of data inserted) to the global numData
+        set the while loop flag to true
+        while flag is true
+            print the menu options
+            declare userResponse int variable
+            while the input cannot be taken to an int:
+                prompt the user to input a number
+                clearInput
+            clearInput
+            declare string objects key and type
+            declare int variables price, beds, baths, and area
+            switch userResponse:
+                case 1:
+                    prompt user to enter address, store it in key
+                    if the address matches a house already stored:
+                        print to the user that it's already stored
+                        break out of switch
+                    else:
+                        prompt user to enter price
+                        while the input cannot be taken into an int:
+                            print that input is invalid
+                            clearInput
+                        prompt user to enter beds
+                        while the input cannot be taken into an int:
+                            print that input is invalid
+                            clearInput
+                        prompt user to enter baths
+                        while the input cannot be taken into an int:
+                            print that input is invalid
+                            clearInput
+                        prompt user to enter property type
+                        prompt user to enter area
+                        while the input cannot be taken into an int:
+                            print that input is invalid
+                            clearInput
+                        create pointer to house toInsert with user given attributes
+                        insert the item in the dataHash, dataTree, and dataInv
+                case 2:
+                    prompt the user to enter the address, store it in key
+                    if the address matches a house already stored:
+                        print to the user that it's already stored
+                        break out of switch
+                    else:
+                        assign the user input to key
+                        initialize result to the pointer to the node in the hash table with given key
+                        if result is not nullptr:
+                            declare House tmp
+                            set the price of tmp by retrieving the price from the pointer to the node
+                            remove the
+                    
+    
  */
+
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -12,12 +120,10 @@
 #include "Parser.h"
 #include "Inventory.h"
 
-//TODO: delete from file when deleted house
-//TODO: add to file when added
-
 using namespace std;
 
 const int NUM_FIELDS = 6;
+int numData = 0;
 Hash<House>* dataHash = new Hash<House>();
 BST<House> dataTree;
 
@@ -28,7 +134,7 @@ House* inventory = new House[25];
 Inventory dataInv(25, inventory, 0, "");
 
 /*
- Clears the input and ignores one line of data.
+ Clears the input and ignores excess input.
  Pre: None
  Post: input stream skips to next line
  Return: None
@@ -69,7 +175,6 @@ void createDataFromCSV() {
         ++totalData;
     --totalData;
     
-    int numData = 0;
     cout << "Enter the number of houses to read from the CSV file: ";
     while (!(cin >> numData) || numData > totalData || numData < 0) {
         cout << "Invalid input. Please try again: ";
@@ -84,13 +189,10 @@ void createDataFromCSV() {
             // read line and set it to inputStr
             string inputStr;
             getline(csvFile, inputStr);
-            //cout << inputStr << endl;
             
             // skip the header line of csv file
             if (i == 0) continue;
-            
-            cout << "yoyo" << endl;
-            cout << inputStr << endl;
+
             CSVParser->setData(0, inputStr);    // 0 signifies 1 data entry set
             string* curData = CSVParser->getData(0);
             newHouse = new House(curData[0], stoll(curData[1]), stoi(curData[2]), stoi(curData[3]), curData[4], stoi(curData[5]));
@@ -110,9 +212,6 @@ void createDataFromCSV() {
         } catch (const std::invalid_argument& e) {
             cout << "Error parsing data " << i + 1 << " (" << e.what() << "). Data is not added." << endl;
         }
-        
-        // delete newHouse;
-        // newHouse = nullptr;
     }
     
     dataInv.updateHouseData();
@@ -123,8 +222,10 @@ void createDataFromCSV() {
 
 int main() {
     // loading data
-    
     createDataFromCSV();
+    
+    // numData and numSearches used to find efficiency
+    int numInserted = numData;
 
     // flag for menu
     bool flag = true;
@@ -147,13 +248,13 @@ int main() {
         cout << "9. Quit" << endl << endl;
         cout << "Enter your choice: ";
 
-        //clearInput();
-        // user response variabl
         int userResponse;
         while (!(cin >> userResponse)) {
-            cout << "Invalid input. Please enter a number (1-9): ";
+            cout << "Invalid input. Please enter a number: ";
             clearInput();
         }
+        
+        clearInput();
         
         string key, type;
         int price, beds, baths, area;
@@ -162,87 +263,91 @@ int main() {
             case 1: { // adding data to hash table
                 // address
                 cout << "Enter the address: ";
-                clearInput();
-                getline(cin, key);
-                
-                // price
-                cout << "Enter the price: ";
-                while (!(cin >> price)) // while loop to ensure user puts in int values
-                {
-                    cout << "Invalid input. Please enter a whole number: " << endl;
-                    cin.clear();
-                    cin.ignore(123, '\n');
-                }
+                while (!(cin >> key))
+                    clearInput();
+                if (dataInv.searchHouse(key).getAddress() == key) {
+                    cout << "House at " << key << " already in inventory!" << endl;
+                    break;
+                } else {
+                    // price
+                    cout << "Enter the price: ";
+                    while (!(cin >> price)) // while loop to ensure user puts in int values
+                    {
+                        cout << "Invalid input. Please enter a whole number: ";
+                        clearInput();
+                    }
 
-                // beds
-                cout << "Enter the number of beds: ";
-                while (!(cin >> beds)) // while loop to ensure user puts in int values
-                {
-                    cout << "Invalid input. Please enter a whole number: " << endl;
-                    cin.clear();
-                    cin.ignore(123, '\n');
-                }
+                    // beds
+                    cout << "Enter the number of beds: ";
+                    while (!(cin >> beds)) // while loop to ensure user puts in int values
+                    {
+                        cout << "Invalid input. Please enter a whole number: ";
+                        clearInput();
+                    }
 
-                // baths
-                cout << "Enter the number of baths: ";
-                while (!(cin >> baths)) // while loop to ensure user puts in int values
-                {
-                    cout << "Invalid input. Please enter a whole number: " << endl;
-                    cin.clear();
-                    cin.ignore(123, '\n');
-                }
+                    // baths
+                    cout << "Enter the number of baths: ";
+                    while (!(cin >> baths)) // while loop to ensure user puts in int values
+                    {
+                        cout << "Invalid input. Please enter a whole number: ";
+                        clearInput();
+                    }
+                    
+                    clearInput();
+                    
+                    // prop type
+                    cout << "Enter the property type: ";
+                    getline(cin, type);
+                    
+                    // area
+                    cout << "Enter the area (sq. ft.): ";
+                    while (!(cin >> area)) // while loop to ensure user puts in int values
+                    {
+                        cout << "Invalid input. Please enter a whole number: ";
+                        clearInput();
+                    }
+                    
+                    clearInput();
 
-                // prop type
-                cout << "Enter the property type: ";
-                clearInput();
-                getline(cin, type);
-                
-                // area
-                cout << "Enter the area (sq. ft.): ";
-                while (!(cin >> area)) // while loop to ensure user puts in int values
-                {
-                    cout << "Invalid input. Please enter a whole number: " << endl;
-                    cin.clear();
-                    cin.ignore(123, '\n');
+                    // add item to hash table, bst, and inventory
+                    House* toInsert = new House(key, price, beds, baths, type, area);
+                    dataHash->addItem(key, toInsert);
+                    dataTree.insert(toInsert);
+                    dataInv.addHouse(*toInsert);
+                    
+                    ++numInserted;
+                    break;
                 }
-                
-                clearInput();
-
-                // add item to hash table, bst, and inventory
-                House* toInsert = new House(key, price, beds, baths, type, area);
-                dataHash->addItem(key, toInsert);
-                dataTree.insert(toInsert);
-                dataInv.addHouse(*toInsert);
-                
-                break;
             } case 2: {
-                cout << "Enter the address of the house to delete: ";
-                clearInput();
-                getline(cin, key);
-                
-                // remove from bst
-                auto result = dataHash->getNode(key);
-                if (result) {
-                    House tmp;
-                    tmp.setPrice(result->data->getPrice());
-                    dataTree.remove(&tmp);
-                    std::cout << "House at " << key << " deleted." << std::endl;
+                cout << "Enter the address: ";
+                while (!(cin >> key))
+                    clearInput();
+                if (dataInv.searchHouse(key).getAddress() != key) {
+                    cout << "House at " << key << " not found!" << endl;
+                    break;
+                } else {
+                    // remove from bst
+                    Node<House>* result = dataHash->getNode(key);
+                    if (result) {
+                        House tmp;
+                        tmp.setPrice(result->data->getPrice());
+                        tmp.setAddress(result->data->getAddress());
+                        dataTree.remove(&tmp);
+                        std::cout << "House at " << key << " deleted." << std::endl;
+                    }
+                    
+                    // remove from hash
+                    dataHash->removeItem(key);
+                    
+                    // remove from inventory
+                    dataInv.deleteHouse(key);
+                    break;
                 }
-                
-                // remove from hash
-                dataHash->removeItem(key);
-                
-                // remove from inventory
-                dataInv.deleteHouse(key);
-                
-                break;
             } case 3: {
                 cout << "Enter the address: ";
-                clearInput();
                 getline(cin, key);
-
-                dataHash->searchItem(key);
                 
+                dataHash->searchItem(key);
                 break;
             } case 4: {
                 bool innerFlag = true;
@@ -266,7 +371,7 @@ int main() {
                             break;
                         case 2:
                             // print the table by searching for bucket
-                            cout << "Input the bucket key: " << endl;
+                            cout << "Input the bucket key: ";
                             clearInput();
                             getline(cin, key);
                             dataHash->printItemsInBucket(key);
@@ -312,17 +417,12 @@ int main() {
                 dataTree.printIndentedTree(cout);
                 break;
             } case 8: {
-                cout << endl;
-                cout << "Hash Table" << endl;
-                cout << "----------" << endl;
-                cout << "Load factor: " << dataHash->getNodeCnt() / double(tableSize) << endl
+                cout << endl << setprecision(2) << fixed
+                    << "Load factor: " << dataHash->getLoadFactor() << endl
                     << "Longest linked list: " << dataHash->getLongestListSize() << endl
                     << "Average number of nodes in linked lists: " << dataHash->getAverageListSize() << endl
-                    << "Number of collisions in hash table " << dataHash->getNumCollisions() << endl;
-                cout << "Binary Search Tree" << endl;
-                cout << "------------------" << endl
-                    << "Average number of operations to insert in BST: " << endl
-                    << "Average number of operations to search in BST: " << endl << endl;
+                    << "Number of collisions in hash table: " << dataHash->getNumCollisions() << endl
+                    << "Average number of operations to insert in BST: " << static_cast<int>(dataTree.getInsertCnt() / double(numInserted) + 0.9) << endl;
                 break;
             } case 9: {
                 flag = false;
@@ -333,5 +433,12 @@ int main() {
             }
         }
     }
+    
+    string x = "";
+    while (x != "x") {
+        cout << "Enter <x> to quit the program: ";
+        cin >> x;
+    }
+    
     return 0;
 }
