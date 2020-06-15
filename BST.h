@@ -39,9 +39,6 @@ public:
     int getInsertCnt() {
         return insertCnt;
     }
-    int resetInsertCnt() {
-        searchCnt = 0;
-    }
     /*
     Search for object in the tree
     Pre: T object
@@ -51,9 +48,6 @@ public:
     bool search(T*);
     int getSearchCnt() {
         return searchCnt;
-    }
-    int resetSearchCnt() {
-        searchCnt = 0;
     }
     /*
     Remove object from the tree

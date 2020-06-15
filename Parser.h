@@ -193,7 +193,7 @@ void Parser::clearData()
 std::string* Parser::splitToArr(const std::string str, std::string delimiter, int arrLength)
 {
 	std::string* arr = new std::string[arrLength];
-	int startLoc = 0;
+	long unsigned int startLoc = 0;
 	int delimLoc = str.find(delimiter, startLoc);
 	for (int i = 0; i < arrLength; i++)
 	{
