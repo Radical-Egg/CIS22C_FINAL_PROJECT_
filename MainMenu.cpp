@@ -28,24 +28,6 @@ House* inventory = new House[25];
 Inventory dataInv(25, inventory, 0, "");
 
 /*
- Determines if string passed is a numer.
- Pre: str - string to be evaluated
- Post: None
- Return: true - string consists only of digits
-         false - string has a character that is not a digit
- */
-bool isNumber(const std::string str) {
-    if (str == "")
-        return false;
-
-    for (unsigned int idx = 0; idx < str.size(); idx++)
-        if (!isdigit(str[idx]))
-            return false;
-        
-    return true;
-}
-
-/*
  Clears the input and ignores one line of data.
  Pre: None
  Post: input stream skips to next line
@@ -94,6 +76,8 @@ void createDataFromCSV() {
         clearInput();
     }
     
+    dataInv.setHouseData(filePath);
+    
     // look over header line that takes up one from numData
     for (int i = 0; i < numData + 1; i++) {
         try {
@@ -105,6 +89,8 @@ void createDataFromCSV() {
             // skip the header line of csv file
             if (i == 0) continue;
             
+            cout << "yoyo" << endl;
+            cout << inputStr << endl;
             CSVParser->setData(0, inputStr);    // 0 signifies 1 data entry set
             string* curData = CSVParser->getData(0);
             newHouse = new House(curData[0], stoll(curData[1]), stoi(curData[2]), stoi(curData[3]), curData[4], stoi(curData[5]));
@@ -234,7 +220,7 @@ int main() {
                 clearInput();
                 getline(cin, key);
                 
-                // remove from bst                
+                // remove from bst
                 auto result = dataHash->getNode(key);
                 if (result) {
                     House tmp;
