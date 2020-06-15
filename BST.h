@@ -22,7 +22,6 @@ private:
 public:
     //constructor
     BST();
-    //Destructor
     ~BST() {
         deleteAllNodes();
     }
@@ -127,6 +126,8 @@ template<typename T>
 BST<T>::BST() {
     root = nullptr;
     size = 0;
+    insertCnt = 0;
+    searchCnt = 0;
 }
 template<typename T>
 void BST<T>::printInRange(BSTNode<T>* node, T min, T max)
@@ -206,8 +207,11 @@ void BST<T>::remove(T* data)
                 curParent = current;
                 current = current->getLeftChild();
             }
-            else
+            // the == operator in house is overloaded to compare address rather than price
+            else if (*(current->getData()) == *data)
                 break;
+            else
+                return;
         }
         if (current == nullptr)
             return;
@@ -215,6 +219,7 @@ void BST<T>::remove(T* data)
         {
             if (curParent != nullptr)
             {
+                // TODO: if the address is the same, then delete; otherwise, return
                 if (*curParent->getData() < *current->getData())
                     curParent->setRightChild(current->getRightChild());
                 else
@@ -254,7 +259,6 @@ void BST<T>::deleteAllNodesHelper(BSTNode<T>* node) {
     if (node != nullptr) {
         deleteAllNodesHelper(node->getLeftChild());
         deleteAllNodesHelper(node->getRightChild());
-        delete node->getData();
         delete node;
     }
 }
@@ -275,7 +279,6 @@ bool BST<T>::search(T* data) {
                 current = current->getLeftChild();
             else
                 return true;
-            searchCnt++;
         }
     }
     return false;
@@ -330,6 +333,7 @@ void BST<T>::setAllNullptr(BSTNode<T>* node) {
         node->setData(nullptr);
     }
 }
+
 template<typename T>
 void BST<T>::deleteSetNull(T* data)
 {
@@ -362,6 +366,7 @@ void BST<T>::deleteSetNull(T* data)
                     curParent->setRightChild(current->getRightChild());
                 else
                     curParent->setLeftChild(current->getRightChild());
+                std::cout << current->getData() << std::endl;
                 current->getData() = nullptr;
                 delete current;
                 size--;

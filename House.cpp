@@ -8,26 +8,33 @@
 
 #include "House.h"
 
-bool House::operator < (const House& object) const {
-    if (!(price < object.getPrice()))
+bool House::operator == (const House& right) const {
+    if (address == right.getAddress())
+        return true;
+    else
+        return false;
+}
+
+bool House::operator < (const House& right) const {
+    if (!(price < right.getPrice()))
         return false;
     return true;
 }
 
-bool House::operator > (const House& object) const {
-    if (!(price > object.getPrice()))
+bool House::operator > (const House& right) const {
+    if (!(price > right.getPrice()))
         return false;
     return true;
 }
 
-bool House::operator >= (const House& object) const {
-    if (!(price >= object.getPrice()))
+bool House::operator >= (const House& right) const {
+    if (!(price >= right.getPrice()))
         return false;
     return true;
 }
 
-bool House::operator <= (const House& object) const {
-    if (!(price <= object.getPrice()))
+bool House::operator <= (const House& right) const {
+    if (!(price <= right.getPrice()))
         return false;
     return true;
 }
