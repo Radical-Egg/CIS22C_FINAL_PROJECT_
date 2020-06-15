@@ -12,12 +12,10 @@
 #include "Parser.h"
 #include "Inventory.h"
 
-//TODO: delete from file when deleted house
-//TODO: add to file when added
-
 using namespace std;
 
 const int NUM_FIELDS = 6;
+int numData = 0;
 Hash<House>* dataHash = new Hash<House>();
 BST<House> dataTree;
 
@@ -26,24 +24,6 @@ BST<House> dataTree;
 // - dataInv has empty string which will be changed to filePath in the createData function
 House* inventory = new House[25];
 Inventory dataInv(25, inventory, 0, "");
-
-/*
- Determines if string passed is a numer.
- Pre: str - string to be evaluated
- Post: None
- Return: true - string consists only of digits
-         false - string has a character that is not a digit
- */
-bool isNumber(const std::string str) {
-    if (str == "")
-        return false;
-
-    for (unsigned int idx = 0; idx < str.size(); idx++)
-        if (!isdigit(str[idx]))
-            return false;
-        
-    return true;
-}
 
 /*
  Clears the input and ignores one line of data.
@@ -87,7 +67,6 @@ void createDataFromCSV() {
         ++totalData;
     --totalData;
     
-    int numData = 0;
     cout << "Enter the number of houses to read from the CSV file: ";
     while (!(cin >> numData) || numData > totalData || numData < 0) {
         cout << "Invalid input. Please try again: ";
@@ -139,9 +118,12 @@ void createDataFromCSV() {
 
 int main() {
     // loading data
-    
     createDataFromCSV();
-
+    
+    // numData and numSearches used to find efficiency
+    int numInserted = numData;
+    int numSearches = 0;
+    
     // flag for menu
     bool flag = true;
     
@@ -229,6 +211,7 @@ int main() {
                 dataTree.insert(toInsert);
                 dataInv.addHouse(*toInsert);
                 
+                ++numData;
                 break;
             } case 2: {
                 cout << "Enter the address of the house to delete: ";
@@ -255,7 +238,7 @@ int main() {
                 getline(cin, key);
 
                 dataHash->searchItem(key);
-                
+                ++numSearches;
                 break;
             } case 4: {
                 bool innerFlag = true;
@@ -330,11 +313,16 @@ int main() {
                 cout << "Load factor: " << dataHash->getNodeCnt() / double(tableSize) << endl
                     << "Longest linked list: " << dataHash->getLongestListSize() << endl
                     << "Average number of nodes in linked lists: " << dataHash->getAverageListSize() << endl
-                    << "Number of collisions in hash table" << endl;
+                    << "Number of collisions in hash table" << dataHash->getNumCollisions() << endl << endl;
                 cout << "Binary Search Tree" << endl;
                 cout << "------------------" << endl
-                    << "Average number of operations to insert in BST: " << endl
-                    << "Average number of operations to search in BST: " << endl << endl;
+                    << "Average number of operations to insert in BST: " << dataTree.getInsertCnt() / numInserted << endl;
+    
+                if (numSearches)
+                    cout << "Average number of operations to search in BST: " << dataTree.getSearchCnt() / numSearches << endl;
+                else
+                    cout << "Average number of operations to search in BST: N/A - no searches were performed" << endl;
+                
                 break;
             } case 9: {
                 flag = false;
