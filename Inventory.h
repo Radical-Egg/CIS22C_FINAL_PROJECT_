@@ -11,19 +11,21 @@ private:
     House* inventory;
     int invSize; // House objects in the array that are initialized
     std::string HouseData;
-
-    void updateHouseData();
     
 public:
+    void updateHouseData();
     Inventory();
-    Inventory(std::string HouseData);
-    Inventory(int invArrSize, House inventory[], int invSize,
-        std::string HouseData);
+//    Inventory(std::string HouseData);
+    Inventory(int invArrSize, House inventory[], int invSize, std::string HouseData);
     Inventory(const Inventory& i);
 
     ~Inventory();
 
-    House* getInventory() const;
+    House* getInventory() const {
+        return inventory;
+    }
+    
+    void setHouseData(std::string houseData);
 
     int getInvSize() const;
 

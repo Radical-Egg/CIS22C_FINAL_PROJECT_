@@ -26,9 +26,8 @@ public:
     return: T object
     */
     T* getData() {
-        if(this!=nullptr)
-            if(data!=nullptr)
-                return data;
+        if(data != nullptr)
+            return data;
         return nullptr;
     }
     /*

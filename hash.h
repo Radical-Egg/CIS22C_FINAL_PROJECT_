@@ -34,7 +34,8 @@ struct Node
 template<class T>
 class Hash
 {
-    public:
+    private:
+        int nodeCnt;
         // table
         Node<T>** table;
         // pointer to top
@@ -48,8 +49,15 @@ class Hash
             Return:    hash key
         */
         int hashFunction(std::string);
+    
+    public:
+        int getNodeCnt() {
+            return nodeCnt;
+        }
+        int getLongestListSize();
+        int getAverageListSize();
+        int getNumCollisions();
         /*
-            
             void addItem(std::string key, int price, int beds, int baths, std::string prop_type, int area);
             add item to hash table
             Pre:    std::string key, int price, int beds, int baths, std::string prop_type, int area
@@ -121,6 +129,60 @@ class Hash
 };
 
 template<class T>
+int Hash<T>::getLongestListSize() {
+    int longestListSize = 0;
+    for (int i = 0; i < tableSize; i++) {
+        int tmpListSize = 0;
+        Node<T>* temp = table[i];
+        while (temp != nullptr) {
+            temp = temp->next;
+            ++tmpListSize;
+        }
+        --tmpListSize;
+        if (tmpListSize > longestListSize)
+            longestListSize = tmpListSize;
+    }
+    return longestListSize;
+}
+
+template<class T>
+int Hash<T>::getAverageListSize() {
+    int numNodes = 0;
+    int numLists = 0;
+    for (int i = 0; i < tableSize; i++) {
+        int tmpListSize = 0;
+        Node<T>* temp = table[i];
+        while (temp != nullptr) {
+            temp = temp->next;
+            ++tmpListSize;
+        }
+        if (tmpListSize != 0) {
+            numNodes += tmpListSize;
+            ++numLists;
+        }
+    }
+    return numNodes / double(numLists);
+}
+
+template<class T>
+int Hash<T>::getNumCollisions() {
+    int numColl = 0;
+    for (int i = 0; i < tableSize; i++) {
+        int tmpListSize = 0;
+        Node<T>* temp = table[i];
+        while (temp != nullptr) {
+            temp = temp->next;
+            ++tmpListSize;
+        }
+        --tmpListSize;
+        if (tmpListSize != 0) {
+            numColl += tmpListSize;
+        }
+    }
+    return numColl;
+}
+
+template<class T>
 int Hash<T>::hashFunction(std::string key)
 {
     // get int value of key
@@ -177,6 +239,7 @@ void Hash<T>::addItem(std::string key, T* data) {
         top[hash_value]->next = entry;
         top[hash_value] = entry;
     }
+    ++nodeCnt;
 }
 template<class T>
 void Hash<T>::removeItem(std::string key)
@@ -235,6 +298,7 @@ void Hash<T>::removeItem(std::string key)
         // move to next node
         entry = entry->next;
     }
+    --nodeCnt;
 }
 template<class T>
 Node<T>* Hash<T>::getNode(std::string key) {
@@ -364,11 +428,12 @@ void Hash<T>::printTable() {
     
     // print table contents
     for (int i = 0; i < tableSize; i++) {
-        if (table[i] != nullptr) {
+        Node<T>* temp = table[i];
+        if (temp != nullptr) {
             std::cout << std::left
                 << std::setw(10) << i
                 << std::setw(10) << itemsAtIndex(i)
-                << std::setw(10) << table[i]->key << std::endl;
+                << std::setw(10) << temp->key << std::endl;
         }
     }
 }
@@ -377,12 +442,12 @@ void Hash<T>::printEntireTable() {
     for (int i = 0; i < tableSize; i++) {
         Node<T>* temp = table[i];
         while (temp != nullptr) {
-            std::cout << table[i]->data->getAddress() << ", "
-                << table[i]->data->getPrice() << ", "
-                << table[i]->data->getBeds() << ", "
-                << table[i]->data->getBaths() << ", "
-                << table[i]->data->getType() << ", "
-                << table[i]->data->getArea() << std::endl;
+            std::cout << temp->data->getAddress() << ", "
+                << temp->data->getPrice() << ", "
+                << temp->data->getBeds() << ", "
+                << temp->data->getBaths() << ", "
+                << temp->data->getType() << ", "
+                << temp->data->getArea() << std::endl;
             temp = temp->next;
         }
     }
