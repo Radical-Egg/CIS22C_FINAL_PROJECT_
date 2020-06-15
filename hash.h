@@ -35,7 +35,7 @@ template<class T>
 class Hash
 {
     private:
-        int nodeCnt;
+        int nodeCnt = 0;
         // table
         Node<T>** table;
         // pointer to top
@@ -346,11 +346,11 @@ void Hash<T>::searchItem(std::string key)
             // if the check is true let the user know the values assosicated with that key
             if (check)
             {
-                std::cout << "Element found at key " << key << " is " << entry->data->getPrice() << std::endl;
-                std::cout << "Element found at key " << key << " is " << entry->data->getBeds() << std::endl;
-                std::cout << "Element found at key " << key << " is " << entry->data->getBaths() << std::endl;
-                std::cout << "Element found at key " << key << " is " << entry->data->getType() << std::endl;
-                std::cout << "Element found at key " << key << " is " << entry->data->getArea() << std::endl;
+                std::cout << "House found at key " << key << " is " << entry->data->getPrice() << "." << std::endl;
+                std::cout << "House found at key " << key << " is " << entry->data->getBeds() << "." << std::endl;
+                std::cout << "House found at key " << key << " is " << entry->data->getBaths() << "." << std::endl;
+                std::cout << "House found at key " << key << " is " << entry->data->getType() << "." << std::endl;
+                std::cout << "House found at key " << key << " is " << entry->data->getArea() << "." << std::endl;
                 return;
             }
             // move to the next node
@@ -478,6 +478,7 @@ Hash<T>::~Hash()
         while (temp != NULL)
         {
             temp_next = temp->next;
+            delete temp->data;
             delete temp;
             temp = temp_next;
         }
