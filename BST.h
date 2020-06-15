@@ -22,7 +22,6 @@ private:
 public:
     //constructor
     BST();
-    //Destructor
     ~BST() {
         deleteAllNodes();
     }
@@ -127,6 +126,8 @@ template<typename T>
 BST<T>::BST() {
     root = nullptr;
     size = 0;
+    insertCnt = 0;
+    searchCnt = 0;
 }
 template<typename T>
 void BST<T>::printInRange(BSTNode<T>* node, T min, T max)
@@ -254,7 +255,6 @@ void BST<T>::deleteAllNodesHelper(BSTNode<T>* node) {
     if (node != nullptr) {
         deleteAllNodesHelper(node->getLeftChild());
         deleteAllNodesHelper(node->getRightChild());
-        delete node->getData();
         delete node;
     }
 }
@@ -275,7 +275,6 @@ bool BST<T>::search(T* data) {
                 current = current->getLeftChild();
             else
                 return true;
-            searchCnt++;
         }
     }
     return false;
@@ -330,6 +329,7 @@ void BST<T>::setAllNullptr(BSTNode<T>* node) {
         node->setData(nullptr);
     }
 }
+
 template<typename T>
 void BST<T>::deleteSetNull(T* data)
 {
@@ -362,6 +362,7 @@ void BST<T>::deleteSetNull(T* data)
                     curParent->setRightChild(current->getRightChild());
                 else
                     curParent->setLeftChild(current->getRightChild());
+                std::cout << current->getData() << std::endl;
                 current->getData() = nullptr;
                 delete current;
                 size--;

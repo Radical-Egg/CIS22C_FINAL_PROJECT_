@@ -12,12 +12,10 @@
 #include "Parser.h"
 #include "Inventory.h"
 
-//TODO: delete from file when deleted house
-//TODO: add to file when added
-
 using namespace std;
 
 const int NUM_FIELDS = 6;
+int numData = 0;
 Hash<House>* dataHash = new Hash<House>();
 BST<House> dataTree;
 
@@ -69,7 +67,6 @@ void createDataFromCSV() {
         ++totalData;
     --totalData;
     
-    int numData = 0;
     cout << "Enter the number of houses to read from the CSV file: ";
     while (!(cin >> numData) || numData > totalData || numData < 0) {
         cout << "Invalid input. Please try again: ";
@@ -84,13 +81,10 @@ void createDataFromCSV() {
             // read line and set it to inputStr
             string inputStr;
             getline(csvFile, inputStr);
-            //cout << inputStr << endl;
             
             // skip the header line of csv file
             if (i == 0) continue;
-            
-            cout << "yoyo" << endl;
-            cout << inputStr << endl;
+
             CSVParser->setData(0, inputStr);    // 0 signifies 1 data entry set
             string* curData = CSVParser->getData(0);
             newHouse = new House(curData[0], stoll(curData[1]), stoi(curData[2]), stoi(curData[3]), curData[4], stoi(curData[5]));
@@ -110,9 +104,6 @@ void createDataFromCSV() {
         } catch (const std::invalid_argument& e) {
             cout << "Error parsing data " << i + 1 << " (" << e.what() << "). Data is not added." << endl;
         }
-        
-        // delete newHouse;
-        // newHouse = nullptr;
     }
     
     dataInv.updateHouseData();
@@ -123,8 +114,11 @@ void createDataFromCSV() {
 
 int main() {
     // loading data
-    
     createDataFromCSV();
+    
+    // numData and numSearches used to find efficiency
+    int numInserted = numData;
+    int numSearches = 0;
 
     // flag for menu
     bool flag = true;
@@ -155,6 +149,8 @@ int main() {
             clearInput();
         }
         
+        clearInput();
+        
         string key, type;
         int price, beds, baths, area;
         
@@ -162,7 +158,6 @@ int main() {
             case 1: { // adding data to hash table
                 // address
                 cout << "Enter the address: ";
-                clearInput();
                 getline(cin, key);
                 
                 // price
@@ -170,8 +165,7 @@ int main() {
                 while (!(cin >> price)) // while loop to ensure user puts in int values
                 {
                     cout << "Invalid input. Please enter a whole number: " << endl;
-                    cin.clear();
-                    cin.ignore(123, '\n');
+                    clearInput();
                 }
 
                 // beds
@@ -179,8 +173,7 @@ int main() {
                 while (!(cin >> beds)) // while loop to ensure user puts in int values
                 {
                     cout << "Invalid input. Please enter a whole number: " << endl;
-                    cin.clear();
-                    cin.ignore(123, '\n');
+                    clearInput();
                 }
 
                 // baths
@@ -188,13 +181,11 @@ int main() {
                 while (!(cin >> baths)) // while loop to ensure user puts in int values
                 {
                     cout << "Invalid input. Please enter a whole number: " << endl;
-                    cin.clear();
-                    cin.ignore(123, '\n');
+                    clearInput();
                 }
-
+                
                 // prop type
                 cout << "Enter the property type: ";
-                clearInput();
                 getline(cin, type);
                 
                 // area
@@ -202,8 +193,7 @@ int main() {
                 while (!(cin >> area)) // while loop to ensure user puts in int values
                 {
                     cout << "Invalid input. Please enter a whole number: " << endl;
-                    cin.clear();
-                    cin.ignore(123, '\n');
+                    clearInput();
                 }
                 
                 clearInput();
@@ -214,10 +204,10 @@ int main() {
                 dataTree.insert(toInsert);
                 dataInv.addHouse(*toInsert);
                 
+                ++numInserted;
                 break;
             } case 2: {
                 cout << "Enter the address of the house to delete: ";
-                clearInput();
                 getline(cin, key);
                 
                 // remove from bst
@@ -238,11 +228,10 @@ int main() {
                 break;
             } case 3: {
                 cout << "Enter the address: ";
-                clearInput();
                 getline(cin, key);
-
-                dataHash->searchItem(key);
                 
+                dataHash->searchItem(key);
+                ++numSearches;
                 break;
             } case 4: {
                 bool innerFlag = true;
@@ -266,7 +255,7 @@ int main() {
                             break;
                         case 2:
                             // print the table by searching for bucket
-                            cout << "Input the bucket key: " << endl;
+                            cout << "Input the bucket key: ";
                             clearInput();
                             getline(cin, key);
                             dataHash->printItemsInBucket(key);
@@ -315,14 +304,13 @@ int main() {
                 cout << endl;
                 cout << "Hash Table" << endl;
                 cout << "----------" << endl;
-                cout << "Load factor: " << dataHash->getNodeCnt() / double(tableSize) << endl
+                cout << "Load factor: " << dataHash->getLoadFactor() << endl
                     << "Longest linked list: " << dataHash->getLongestListSize() << endl
                     << "Average number of nodes in linked lists: " << dataHash->getAverageListSize() << endl
-                    << "Number of collisions in hash table " << dataHash->getNumCollisions() << endl;
+                    << "Number of collisions in hash table: " << dataHash->getNumCollisions() << endl << endl;
                 cout << "Binary Search Tree" << endl;
                 cout << "------------------" << endl
-                    << "Average number of operations to insert in BST: " << endl
-                    << "Average number of operations to search in BST: " << endl << endl;
+                << "Average number of operations to insert in BST: " << static_cast<int>(dataTree.getInsertCnt() / double(numInserted) + 0.9) << endl;
                 break;
             } case 9: {
                 flag = false;
@@ -333,5 +321,6 @@ int main() {
             }
         }
     }
+    
     return 0;
 }
