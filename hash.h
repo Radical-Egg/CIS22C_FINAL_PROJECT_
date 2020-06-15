@@ -28,6 +28,8 @@ class Hash
 {
     private:
         int nodeCnt = 0;
+        double loadFactorLimit = 0.75;
+        int tableSize = 50;
         // table
         Node<T>** table;
         // pointer to top
@@ -43,11 +45,26 @@ class Hash
         int hashFunction(std::string);
     
     public:
+        double getLoadFactor() {
+            return getNodeCnt() / double(tableSize);
+        }
+        Hash(int size, double lfLimit){
+            tableSize = size;
+            loadFactorLimit = lfLimit;
+            table = new Node<T>* [tableSize];
+            top = new Node<T>* [tableSize];
+
+            for(int i = 0; i < tableSize; i++)
+            {
+                table[i] = NULL;
+                top[i] = NULL;
+            }
+        }
         int getNodeCnt() {
             return nodeCnt;
         }
         int getLongestListSize();
-        int getAverageListSize();
+        double getAverageListSize();
         int getNumCollisions();
         /*
             void addItem(std::string key, int price, int beds, int baths, std::string prop_type, int area);
@@ -112,6 +129,27 @@ class Hash
         void printTable();
     
         void printEntireTable();
+    
+        void reHash() {
+            tableSize *= 2;
+            Node<T>** newTable = new Node<T>*[tableSize];
+            delete []top;
+            top = new Node<T>*[tableSize];
+            for (int i = 0; i < tableSize/2; i++) {
+                Node<T>* temp = table[i];
+                if (temp != nullptr) {
+                    int hash_value = hashFunction(temp->key);
+                    newTable[hash_value] = temp;
+                    if(temp != nullptr)
+                        while (temp->next != nullptr)
+                            temp = temp->next;
+                    top[hash_value] = temp;
+                }
+            }
+            Node<T>** tempTable = table;
+            table = newTable;
+            delete []tempTable;
+        }
 
         // constructor
         Hash();
@@ -121,7 +159,7 @@ class Hash
 };
 
 template<class T>
-int Hash<T>::getLongestListSize() 
+int Hash<T>::getLongestListSize()
 {
     int longestListSize = 0;
     int tempSize = 0;;
@@ -148,11 +186,11 @@ int Hash<T>::getLongestListSize()
 }
 
 template<class T>
-int Hash<T>::getAverageListSize()
+double Hash<T>::getAverageListSize()
 {
-    int average = 0;
+    double average = 0;
     int total = 0;
-    int counter = 0;
+    double counter = 0;
     // create a temp node
     Node<T>* temp = new Node<T>();
     
@@ -173,7 +211,7 @@ int Hash<T>::getAverageListSize()
 }
 
 template<class T>
-int Hash<T>::getNumCollisions() 
+int Hash<T>::getNumCollisions()
 {
     int numColl = 0;
     int tmpListSize = 0;
@@ -203,7 +241,11 @@ template<class T>
 int Hash<T>::hashFunction(std::string key)
 {
     // get int value of key
-    int hash_value = key.length();
+    int charSum = 0;
+    for (int i = 0; i < key.length()/2; ++i)
+        charSum += static_cast<char>(key[i]);
+    
+    int hash_value = charSum;
     // return hash_value mod tablesize to get our hash key
     return hash_value % tableSize;
 }
@@ -244,6 +286,10 @@ void Hash<T>::addItem(std::string key, T* data) {
         top[hash_value] = entry;
     }
     ++nodeCnt;
+    
+    double currLF = nodeCnt / double(tableSize);
+    if(currLF >= loadFactorLimit)
+        reHash();
 }
 template<class T>
 void Hash<T>::removeItem(std::string key)
@@ -257,7 +303,7 @@ void Hash<T>::removeItem(std::string key)
     // if the nodes key is not equal to the key or the entry is NULL then we can't find the key
     if (entry == NULL)
     {
-        std::cout << "Key not found" << std::endl;
+        // removed cout line since already taken care of by inventory class function in main
         return;
     }
     // while the entry isnt NULL we need to move to check the next and previous node are NULL
@@ -348,11 +394,11 @@ void Hash<T>::searchItem(std::string key)
             // if the check is true let the user know the values assosicated with that key
             if (check)
             {
-                std::cout << "House found at key " << key << " is " << entry->data->getPrice() << "." << std::endl;
-                std::cout << "House found at key " << key << " is " << entry->data->getBeds() << "." << std::endl;
-                std::cout << "House found at key " << key << " is " << entry->data->getBaths() << "." << std::endl;
-                std::cout << "House found at key " << key << " is " << entry->data->getType() << "." << std::endl;
-                std::cout << "House found at key " << key << " is " << entry->data->getArea() << "." << std::endl;
+                std::cout << "Price: " << entry->data->getPrice() << std::endl;
+                std::cout << "Beds: " << entry->data->getBeds() << std::endl;
+                std::cout << "Baths: " << entry->data->getBaths() << std::endl;
+                std::cout << "Type: " << entry->data->getType() << std::endl;
+                std::cout << "Area: " << entry->data->getArea() << std::endl;
                 return;
             }
             // move to the next node
@@ -362,7 +408,7 @@ void Hash<T>::searchItem(std::string key)
     // if the check is false then you didn't find the node and let the user know
     if (!check)
     {
-        std::cout << "No element found." << std::endl;
+        std::cout << "No house found." << std::endl;
     }
 }
 // get the amount of items in each bucket
