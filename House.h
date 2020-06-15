@@ -62,11 +62,12 @@ public:
         return area;
     }
     
+    bool operator == (const House&) const;
     bool operator < (const House&) const;
     bool operator > (const House&) const;
     bool operator >= (const House&) const;
     bool operator <= (const House&) const;
-
+    
     friend std::ostream& operator << (std::ostream&, const House&);
 };
 
