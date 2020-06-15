@@ -16,7 +16,6 @@ struct Node
     // address key
     std::string key;
     // data
-    
     T* data;
     // pointer to next
     Node<T>* next;
@@ -122,56 +121,81 @@ class Hash
 };
 
 template<class T>
-int Hash<T>::getLongestListSize() {
+int Hash<T>::getLongestListSize() 
+{
     int longestListSize = 0;
-    for (int i = 0; i < tableSize; i++) {
-        int tmpListSize = 0;
-        Node<T>* temp = table[i];
-        while (temp != nullptr) {
-            temp = temp->next;
-            ++tmpListSize;
+    int tempSize = 0;;
+   // create a temp node
+    Node<T>* temp = new Node<T>();
+    
+    // loop through and print the table contents
+    for(int i = 0; i < tableSize; i++)
+    {
+        temp = table[i];
+        if (temp != NULL)
+        {
+            int itemsAtList = itemsAtIndex(i);
+            tempSize = itemsAtList;
+
+            if(tempSize > longestListSize)
+            {
+                longestListSize = tempSize;
+            }
         }
-        --tmpListSize;
-        if (tmpListSize > longestListSize)
-            longestListSize = tmpListSize;
     }
+    delete temp;
     return longestListSize;
 }
 
 template<class T>
-int Hash<T>::getAverageListSize() {
-    int numNodes = 0;
-    int numLists = 0;
-    for (int i = 0; i < tableSize; i++) {
-        int tmpListSize = 0;
-        Node<T>* temp = table[i];
-        while (temp != nullptr) {
-            temp = temp->next;
-            ++tmpListSize;
-        }
-        if (tmpListSize != 0) {
-            numNodes += tmpListSize;
-            ++numLists;
+int Hash<T>::getAverageListSize()
+{
+    int average = 0;
+    int total = 0;
+    int counter = 0;
+    // create a temp node
+    Node<T>* temp = new Node<T>();
+    
+    // loop through and print the table contents
+    for(int i = 0; i < tableSize; i++)
+    {
+        temp = table[i];
+        if (temp != NULL)
+        {
+            int numOfItems = itemsAtIndex(i);
+            total += numOfItems;
+            counter++;
         }
     }
-    return numNodes / double(numLists);
+    average = total / counter;
+    delete temp;
+    return average;
 }
 
 template<class T>
-int Hash<T>::getNumCollisions() {
+int Hash<T>::getNumCollisions() 
+{
     int numColl = 0;
-    for (int i = 0; i < tableSize; i++) {
-        int tmpListSize = 0;
-        Node<T>* temp = table[i];
-        while (temp != nullptr) {
-            temp = temp->next;
-            ++tmpListSize;
-        }
-        --tmpListSize;
-        if (tmpListSize != 0) {
-            numColl += tmpListSize;
+    int tmpListSize = 0;
+
+    // create a temp node
+    Node<T>* temp = new Node<T>();
+    
+    // loop through and print the table contents
+    for(int i = 0; i < tableSize; i++)
+    {
+        temp = table[i];
+        if (temp != NULL)
+        {
+            int num = itemsAtIndex(i);
+
+            if(num > 1)
+            {
+                numColl += num - 1;
+            }
         }
     }
+    delete temp;
     return numColl;
 }
 

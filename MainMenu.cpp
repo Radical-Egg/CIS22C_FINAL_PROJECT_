@@ -318,7 +318,7 @@ int main() {
                 cout << "Load factor: " << dataHash->getNodeCnt() / double(tableSize) << endl
                     << "Longest linked list: " << dataHash->getLongestListSize() << endl
                     << "Average number of nodes in linked lists: " << dataHash->getAverageListSize() << endl
-                    << "Number of collisions in hash table" << endl;
+                    << "Number of collisions in hash table " << dataHash->getNumCollisions() << endl;
                 cout << "Binary Search Tree" << endl;
                 cout << "------------------" << endl
                     << "Average number of operations to insert in BST: " << endl
