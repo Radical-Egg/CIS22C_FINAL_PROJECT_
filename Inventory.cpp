@@ -11,7 +11,7 @@ Inventory::Inventory() {
   HouseData = "";
 }
 
-Inventory::Inventory(std::string HouseData) {
+//Inventory::Inventory(std::string HouseData) {
 //  this->HouseData = HouseData;
 //  invSize = 0;
 //
@@ -54,7 +54,7 @@ Inventory::Inventory(std::string HouseData) {
 //  else {
 //    std::cout << "Error: file path not found\n";
 //  }
-}
+//}
 
 Inventory::Inventory(int invArrSize, House inventory[],
   int invSize, std::string HouseData) {
@@ -79,6 +79,10 @@ Inventory::Inventory(const Inventory& i) {
   }
 }
 
+void Inventory::setHouseData(std::string houseData) {
+    this->HouseData = houseData;
+}
+
 Inventory::~Inventory() {
   delete [] inventory;
 }
@@ -96,18 +100,21 @@ House Inventory::searchHouse(std::string address) const {
   return House();
 }
 
+// TODO: change in book inventory as well?
 void Inventory::addHouse(House house, bool update) {
     ++invSize;
 
     if (invSize > invArrSize) {
-      House* tempInv = new House[invArrSize + 50];
-      for (int i = 0; i < invArrSize; i++) {
-        tempInv[i] = inventory[i];
-      }
-      invArrSize += 50;
-      tempInv[invSize - 1] = house;
-      delete[] inventory;
-      inventory = tempInv;
+        House* tempInv = new House[invArrSize + 50];
+        for (int i = 0; i < invArrSize; i++) {
+          tempInv[i] = inventory[i];
+        }
+        invArrSize += 50;
+        tempInv[invSize - 1] = house;
+        delete[] inventory;
+        inventory = tempInv;
+    } else {
+        inventory[invSize - 1] = house;
     }
     
     if (update)
@@ -120,32 +127,21 @@ void Inventory::addHouse(std::string address, long price, int beds, int baths, s
   addHouse(tmpHouse, update);
 }
 
-bool Inventory::deleteHouse(House House) {
-  for (int idx = 0; idx < invSize; ++idx) {
-    if (inventory[idx].getAddress() == House.getAddress()) {
-        inventory[idx] = inventory[invSize - 1];
-        invSize--;
-    }
-    updateHouseData();
-
-    return true;
-  }
-  
-  return false;
-}
-
 bool Inventory::deleteHouse(std::string address) {
-  for (int idx = 0; idx < invSize; ++idx) {
-    if (inventory[idx].getAddress() == address) {
-        inventory[idx] = inventory[invSize - 1];
-        invSize--;
+    std::cout << invSize << std::endl;
+    int tempSize = invSize;
+    for (int idx = 0; idx < invSize; ++idx) {
+        if (inventory[idx].getAddress() == address) {
+            inventory[idx] = inventory[invSize - 1];
+            invSize--;
+        }
     }
 
     updateHouseData();
-    return true;
-  }
-
-  return false;
+    if (tempSize < invSize) {
+        return true;
+    }
+    return false;
 }
 
 // Below are all the private member functions of the Inventory class
@@ -153,6 +149,7 @@ void Inventory::updateHouseData() {
   std::ofstream out;
   out.open(HouseData);
   if (out.is_open()) {
+      out << "address,price,beds,baths,prop_type,area" << std::endl;
     for (int idx = 0; idx < invSize; ++idx) {
       out << inventory[idx].getAddress() << ","
         << inventory[idx].getPrice() << ","

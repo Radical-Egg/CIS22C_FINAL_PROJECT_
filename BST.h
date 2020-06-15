@@ -17,6 +17,8 @@ private:
     BSTNode<T>* root;
     int size;
     void deleteAllNodesHelper(BSTNode<T>*);
+    int insertCnt;
+    int searchCnt;
 public:
     //constructor
     BST();
@@ -34,6 +36,12 @@ public:
     return: none
     */
     void insert(T*);
+    int getInsertCnt() {
+        return insertCnt;
+    }
+    int resetInsertCnt() {
+        searchCnt = 0;
+    }
     /*
     Search for object in the tree
     Pre: T object
@@ -41,6 +49,12 @@ public:
     Return: true if found, otherwise, return false
     */
     bool search(T*);
+    int getSearchCnt() {
+        return searchCnt;
+    }
+    int resetSearchCnt() {
+        searchCnt = 0;
+    }
     /*
     Remove object from the tree
     Pre: T object
@@ -120,8 +134,6 @@ BST<T>::BST() {
     root = nullptr;
     size = 0;
 }
-
-// TODO: memory leak found
 template<typename T>
 void BST<T>::printInRange(BSTNode<T>* node, T min, T max)
 {
@@ -148,39 +160,37 @@ void BST<T>::insert(T* data) {
     {
         BSTNode<T>* curParent = nullptr;
         BSTNode<T>* current = root;
+        
         while (current != nullptr)
         {
-            if (*(current->getData()) < *data)
+            if (*(current->getData()) <= *data)
             {
                 curParent = current;
                 current = current->getRightChild();
             }
-            else if (*(current->getData()) > *data)
+            else // if (*(current->getData()) > *data)
             {
                 curParent = current;
                 current = current->getLeftChild();
             }
-            else
-                return;
+            insertCnt++;
         }
+        
         BSTNode<T>* newNode = new BSTNode<T>();
         newNode->setData(data);
-//        std::cout << "inserted " << *data << " into the BST; ";
-//        std::cout << " has value = " << *newNode->getData() << std::endl;
         
-        if (*(curParent->getData()) < *data)
+        if (*(curParent->getData()) < *data) {
             curParent->setRightChild(newNode);
-        else
+        } else {
             curParent->setLeftChild(newNode);
+        }
+        insertCnt++;
         size++;
     }
     else {
         root = new BSTNode<T>();
         root->setData(data);
         size++;
-        
-//        std::cout << "inserted " << *data << " into the BST; ";
-//        std::cout << " has value = " << root->getData() << std::endl;
     }
 }
 template<typename T>
@@ -271,6 +281,7 @@ bool BST<T>::search(T* data) {
                 current = current->getLeftChild();
             else
                 return true;
+            searchCnt++;
         }
     }
     return false;
