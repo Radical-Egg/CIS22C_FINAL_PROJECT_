@@ -7,8 +7,6 @@
 #ifndef HASH_H
 #define HASH_H
 
-const int tableSize = 50;
-
 // linked list
 template<class T>
 struct Node
@@ -129,26 +127,81 @@ class Hash
         void printTable();
     
         void printEntireTable();
-    
+       
+        /*
+        Pseudocode:
+            create new table double the size of old table
+            set all Node pointer in new table to nullptr
+            create new top double the size of old top
+            set all Node pointer in new top to nullptr
+            for each bucket in old table
+                for each entry in the current bucket
+                    get new hash value
+                    create new entry contains the same attributes of the current entry
+                    put new entry to the new table and new top(if it is the end of the list)
+            table = newTable
+            top = newTop
+            delete old table
+            delete top
+        */
+
         void reHash() {
+            std::cout << "rehash" << std::endl;
             tableSize *= 2;
-            Node<T>** newTable = new Node<T>*[tableSize];
-            delete []top;
-            top = new Node<T>*[tableSize];
-            for (int i = 0; i < tableSize/2; i++) {
-                Node<T>* temp = table[i];
-                if (temp != nullptr) {
-                    int hash_value = hashFunction(temp->key);
-                    newTable[hash_value] = temp;
-                    if(temp != nullptr)
-                        while (temp->next != nullptr)
-                            temp = temp->next;
-                    top[hash_value] = temp;
+            Node<T>** newTable = new Node<T> * [tableSize];
+            for (int i = 0; i < tableSize; i++)
+                newTable[i] = nullptr;
+            Node<T>** newTop = new Node<T> * [tableSize];
+            for (int i = 0; i < tableSize; i++)
+                newTop[i] = nullptr;
+            for (int i = 0; i < tableSize / 2; i++)
+            {
+                Node<T>* oldEntry = table[i];
+                while (oldEntry != nullptr)
+                {
+                    int hash_value = hashFunction(oldEntry->key);
+                    Node<T>* entry = newTable[hash_value];
+                    if (entry == nullptr)
+                    {
+                        // create a new node and assign values
+                        entry = new Node<T>;
+                        entry->key = oldEntry->key;
+                        entry->data = oldEntry->data;
+                        // set the next and prev to NULL
+                        entry->next = NULL;
+                        entry->prev = NULL;
+                        // set the table[hash_value] and top equal to the new node entry
+                        newTable[hash_value] = entry;
+                        newTop[hash_value] = entry;
+                    }
+                    else
+                    {
+                        entry = new Node<T>;
+                        entry->key = oldEntry->key;
+                        entry->data = oldEntry->data;
+                        entry->next = NULL;
+                        entry->prev = newTop[hash_value];
+                        newTop[hash_value]->next = entry;
+                        newTop[hash_value] = entry;
+                    }
+                    oldEntry = oldEntry->next;
                 }
             }
             Node<T>** tempTable = table;
             table = newTable;
-            delete []tempTable;
+            for (int i = 0; i < tableSize / 2; i++) {
+                Node<T>* temp = tempTable[i];
+                while (temp != nullptr)
+                {
+                    Node<T>* temp2 = temp->next;
+                    delete temp;
+                    temp = temp2;
+                }
+            }
+            delete[]tempTable;
+            delete[]top;
+            top = newTop;
+
         }
 
         // constructor
