@@ -263,13 +263,14 @@ int main() {
             case 1: { // adding data to hash table
                 // address
                 cout << "Enter the address: ";
-                while (!(cin >> key))
-                    clearInput();
+                getline(cin, key);
+
                 if (dataInv.searchHouse(key).getAddress() == key) {
                     cout << "House at " << key << " already in inventory!" << endl;
                     break;
                 } else {
                     // price
+
                     cout << "Enter the price: ";
                     while (!(cin >> price)) // while loop to ensure user puts in int values
                     {
@@ -277,6 +278,7 @@ int main() {
                         clearInput();
                     }
 
+                    clearInput();
                     // beds
                     cout << "Enter the number of beds: ";
                     while (!(cin >> beds)) // while loop to ensure user puts in int values
@@ -285,6 +287,7 @@ int main() {
                         clearInput();
                     }
 
+                    clearInput();
                     // baths
                     cout << "Enter the number of baths: ";
                     while (!(cin >> baths)) // while loop to ensure user puts in int values
@@ -306,7 +309,7 @@ int main() {
                         cout << "Invalid input. Please enter a whole number: ";
                         clearInput();
                     }
-                    
+
                     clearInput();
 
                     // add item to hash table, bst, and inventory
@@ -320,8 +323,8 @@ int main() {
                 }
             } case 2: {
                 cout << "Enter the address: ";
-                while (!(cin >> key))
-                    clearInput();
+                getline(cin, key);
+
                 if (dataInv.searchHouse(key).getAddress() != key) {
                     cout << "House at " << key << " not found!" << endl;
                     break;
