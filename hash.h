@@ -24,199 +24,216 @@ struct Node
 template<class T>
 class Hash
 {
-    private:
-        int nodeCnt = 0;
-        double loadFactorLimit = 0.75;
-        int tableSize = 50;
-        // table
-        Node<T>** table;
-        // pointer to top
-        Node<T>** top;
-        /*
-            
-            int hashFunction(std::string key);
-            get hash key
-            Pre:    key.
-            Post:    None.
-            Return:    hash key
-        */
-        int hashFunction(std::string);
+private:
+    std::string database;
+    int nodeCnt = 0;
+    double loadFactorLimit = 0.75;
+    int tableSize = 50;
+    // table
+    Node<T>** table;
+    // pointer to top
+    Node<T>** top;
+    /*
+     
+     int hashFunction(std::string key);
+     get hash key
+     Pre:    key.
+     Post:    None.
+     Return:    hash key
+     */
+    int hashFunction(std::string);
     
-    public:
-        double getLoadFactor() {
-            return getNodeCnt() / double(tableSize);
+public:
+    void updateData();
+    double getLoadFactor() {
+        return getNodeCnt() / double(tableSize);
+    }
+    Hash(int size, double lfLimit, std::string db){
+        database = db;
+        tableSize = size;
+        loadFactorLimit = lfLimit;
+        table = new Node<T>* [tableSize];
+        top = new Node<T>* [tableSize];
+        
+        for(int i = 0; i < tableSize; i++)
+        {
+            table[i] = NULL;
+            top[i] = NULL;
         }
-        Hash(int size, double lfLimit){
-            tableSize = size;
-            loadFactorLimit = lfLimit;
-            table = new Node<T>* [tableSize];
-            top = new Node<T>* [tableSize];
-
-            for(int i = 0; i < tableSize; i++)
+    }
+    int getNodeCnt() {
+        return nodeCnt;
+    }
+    int getLongestListSize();
+    double getAverageListSize();
+    int getNumCollisions();
+    /*
+     void addItem(std::string key, int price, int beds, int baths, std::string prop_type, int area);
+     add item to hash table
+     Pre:    std::string key, int price, int beds, int baths, std::string prop_type, int area
+     Post:    None.
+     Return:    None.
+     */
+    void addItem(std::string, T*);
+    /*
+     
+     void removeItem(std::string key);
+     remove item from hash table
+     Pre:    std::string key
+     Post:    None.
+     Return:    None.
+     */
+    void removeItem(std::string);
+    
+    /*
+     Returns the node with the given key.
+     Pre: std::string key - the string used to identify the wanted node
+     Post: None
+     Return: Node - the node with the given key
+     */
+    Node<T>* getNode(std::string);
+    /*
+     
+     void searchItem(std::string key);
+     search for key in hash table and display data found
+     Pre:    std::string key
+     Post:    None.
+     Return:    None.
+     */
+    void searchItem(std::string);
+    T returnItem(std::string);
+    /*
+     
+     int itemsAtIndex(int index);
+     get amount of items in a given bucket
+     Pre:    int index
+     Post:    None.
+     Return:    index
+     */
+    int itemsAtIndex(int);
+    /*
+     
+     void printItemsInBucket(std::string key);
+     print the items in any given bucket
+     Pre:    std::string key
+     Post:    None.
+     Return:    None.
+     */
+    void printItemsInBucket(std::string);
+    /*
+     
+     void printTable();
+     print the hash table
+     Pre:    None.
+     Post:    None.
+     Return:    None.
+     */
+    void printTable();
+    
+    void printEntireTable();
+    
+    /*
+     Pseudocode:
+     create new table double the size of old table
+     set all Node pointer in new table to nullptr
+     create new top double the size of old top
+     set all Node pointer in new top to nullptr
+     for each bucket in old table
+     for each entry in the current bucket
+     get new hash value
+     create new entry contains the same attributes of the current entry
+     put new entry to the new table and new top(if it is the end of the list)
+     table = newTable
+     top = newTop
+     delete old table
+     delete top
+     */
+    
+    void reHash() {
+        tableSize *= 2;
+        Node<T>** newTable = new Node<T> * [tableSize];
+        for (int i = 0; i < tableSize; i++)
+            newTable[i] = nullptr;
+        Node<T>** newTop = new Node<T> * [tableSize];
+        for (int i = 0; i < tableSize; i++)
+            newTop[i] = nullptr;
+        for (int i = 0; i < tableSize / 2; i++)
+        {
+            Node<T>* oldEntry = table[i];
+            while (oldEntry != nullptr)
             {
-                table[i] = NULL;
-                top[i] = NULL;
+                int hash_value = hashFunction(oldEntry->key);
+                Node<T>* entry = newTable[hash_value];
+                if (entry == nullptr)
+                {
+                    // create a new node and assign values
+                    entry = new Node<T>;
+                    entry->key = oldEntry->key;
+                    entry->data = oldEntry->data;
+                    // set the next and prev to NULL
+                    entry->next = NULL;
+                    entry->prev = NULL;
+                    // set the table[hash_value] and top equal to the new node entry
+                    newTable[hash_value] = entry;
+                    newTop[hash_value] = entry;
+                }
+                else
+                {
+                    entry = new Node<T>;
+                    entry->key = oldEntry->key;
+                    entry->data = oldEntry->data;
+                    entry->next = NULL;
+                    entry->prev = newTop[hash_value];
+                    newTop[hash_value]->next = entry;
+                    newTop[hash_value] = entry;
+                }
+                oldEntry = oldEntry->next;
             }
         }
-        int getNodeCnt() {
-            return nodeCnt;
-        }
-        int getLongestListSize();
-        double getAverageListSize();
-        int getNumCollisions();
-        /*
-            void addItem(std::string key, int price, int beds, int baths, std::string prop_type, int area);
-            add item to hash table
-            Pre:    std::string key, int price, int beds, int baths, std::string prop_type, int area
-            Post:    None.
-            Return:    None.
-        */
-        void addItem(std::string, T*);
-        /*
-            
-            void removeItem(std::string key);
-            remove item from hash table
-            Pre:    std::string key
-            Post:    None.
-            Return:    None.
-        */
-        void removeItem(std::string);
-    
-        /*
-         Returns the node with the given key.
-         Pre: std::string key - the string used to identify the wanted node
-         Post: None
-         Return: Node - the node with the given key
-         */
-        Node<T>* getNode(std::string);
-        /*
-            
-            void searchItem(std::string key);
-            search for key in hash table and display data found
-            Pre:    std::string key
-            Post:    None.
-            Return:    None.
-        */
-        void searchItem(std::string);
-        /*
-            
-            int itemsAtIndex(int index);
-            get amount of items in a given bucket
-            Pre:    int index
-            Post:    None.
-            Return:    index
-        */
-        int itemsAtIndex(int);
-        /*
-            
-            void printItemsInBucket(std::string key);
-            print the items in any given bucket
-            Pre:    std::string key
-            Post:    None.
-            Return:    None.
-        */
-        void printItemsInBucket(std::string);
-        /*
-            
-            void printTable();
-            print the hash table
-            Pre:    None.
-            Post:    None.
-            Return:    None.
-        */
-        void printTable();
-    
-        void printEntireTable();
-       
-        /*
-        Pseudocode:
-            create new table double the size of old table
-            set all Node pointer in new table to nullptr
-            create new top double the size of old top
-            set all Node pointer in new top to nullptr
-            for each bucket in old table
-                for each entry in the current bucket
-                    get new hash value
-                    create new entry contains the same attributes of the current entry
-                    put new entry to the new table and new top(if it is the end of the list)
-            table = newTable
-            top = newTop
-            delete old table
-            delete top
-        */
-
-        void reHash() {
-            std::cout << "rehash" << std::endl;
-            tableSize *= 2;
-            Node<T>** newTable = new Node<T> * [tableSize];
-            for (int i = 0; i < tableSize; i++)
-                newTable[i] = nullptr;
-            Node<T>** newTop = new Node<T> * [tableSize];
-            for (int i = 0; i < tableSize; i++)
-                newTop[i] = nullptr;
-            for (int i = 0; i < tableSize / 2; i++)
+        Node<T>** tempTable = table;
+        table = newTable;
+        for (int i = 0; i < tableSize / 2; i++) {
+            Node<T>* temp = tempTable[i];
+            while (temp != nullptr)
             {
-                Node<T>* oldEntry = table[i];
-                while (oldEntry != nullptr)
-                {
-                    int hash_value = hashFunction(oldEntry->key);
-                    Node<T>* entry = newTable[hash_value];
-                    if (entry == nullptr)
-                    {
-                        // create a new node and assign values
-                        entry = new Node<T>;
-                        entry->key = oldEntry->key;
-                        entry->data = oldEntry->data;
-                        // set the next and prev to NULL
-                        entry->next = NULL;
-                        entry->prev = NULL;
-                        // set the table[hash_value] and top equal to the new node entry
-                        newTable[hash_value] = entry;
-                        newTop[hash_value] = entry;
-                    }
-                    else
-                    {
-                        entry = new Node<T>;
-                        entry->key = oldEntry->key;
-                        entry->data = oldEntry->data;
-                        entry->next = NULL;
-                        entry->prev = newTop[hash_value];
-                        newTop[hash_value]->next = entry;
-                        newTop[hash_value] = entry;
-                    }
-                    oldEntry = oldEntry->next;
-                }
+                Node<T>* temp2 = temp->next;
+                delete temp;
+                temp = temp2;
             }
-            Node<T>** tempTable = table;
-            table = newTable;
-            for (int i = 0; i < tableSize / 2; i++) {
-                Node<T>* temp = tempTable[i];
-                while (temp != nullptr)
-                {
-                    Node<T>* temp2 = temp->next;
-                    delete temp;
-                    temp = temp2;
-                }
-            }
-            delete[]tempTable;
-            delete[]top;
-            top = newTop;
-
         }
-
-        // constructor
-        Hash();
-        // destructor
-        ~Hash();
-
+        delete[]tempTable;
+        delete[]top;
+        top = newTop;
+        
+    }
+    
+    // constructor
+    Hash(std::string);
+    // destructor
+    ~Hash();
+    
 };
-
+template<class T>
+void Hash<T>::updateData() {
+    std::ofstream out;
+    out.open(database);
+    
+    // traverse hash table and output house data to csv
+    if (out.is_open()) {
+        for (int i = 0; i < tableSize; ++i) {
+            for (Node<T>* entry = table[i]; entry != nullptr; entry = entry->next) {
+                out << *(entry->data) << std::endl;
+            }
+        }
+    } else
+        std::cout << "ERROR: File path was not found." << std::endl;
+}
 template<class T>
 int Hash<T>::getLongestListSize()
 {
     int longestListSize = 0;
     int tempSize = 0;;
-   // create a temp node
+    // create a temp node
     Node<T>* temp = new Node<T>();
     
     // loop through and print the table contents
@@ -227,7 +244,7 @@ int Hash<T>::getLongestListSize()
         {
             int itemsAtList = itemsAtIndex(i);
             tempSize = itemsAtList;
-
+            
             if(tempSize > longestListSize)
             {
                 longestListSize = tempSize;
@@ -267,8 +284,7 @@ template<class T>
 int Hash<T>::getNumCollisions()
 {
     int numColl = 0;
-    int tmpListSize = 0;
-
+    
     // create a temp node
     Node<T>* temp = new Node<T>();
     
@@ -279,7 +295,7 @@ int Hash<T>::getNumCollisions()
         if (temp != NULL)
         {
             int num = itemsAtIndex(i);
-
+            
             if(num > 1)
             {
                 numColl += num - 1;
@@ -293,47 +309,42 @@ int Hash<T>::getNumCollisions()
 template<class T>
 int Hash<T>::hashFunction(std::string key)
 {
-    // get int value of key
-    int charSum = 0;
-    for (int i = 0; i < key.length()/2; ++i)
-        charSum += static_cast<char>(key[i]);
-    
-    int hash_value = charSum;
+    int hash_value = key.length();
     // return hash_value mod tablesize to get our hash key
     return hash_value % tableSize;
 }
+
+
 template<class T>
 void Hash<T>::addItem(std::string key, T* data) {
     // get hash Key
     int hash_value = hashFunction(key);
     // make table entry
     Node<T>* entry = table[hash_value];
-
+    
     // check if entry is NULL and there nodes in the bucket
-    if (entry == NULL)
+    if (entry == nullptr)
     {
         // create a new node and assign values
         entry = new Node<T>;
         entry->key = key;
         entry->data = data;
         // set the next and prev to NULL
-        entry->next = NULL;
-        entry->prev = NULL;
+        entry->next = nullptr;
+        entry->prev = nullptr;
         // set the table[hash_value] and top equal to the new node entry
         table[hash_value] = entry;
         top[hash_value] = entry;
     }
     else
     { // if the entry is not equal to NULL then move to the next node until we find a NULL value
-        while (entry != NULL)
-        {
+        while (entry != nullptr)
             entry = entry->next; // move to next
-        }
         // once we find a NULL create a new item and assign values
         entry = new Node<T>;
         entry->key = key;
         entry->data = data;
-        entry->next = NULL;
+        entry->next = nullptr;
         entry->prev = top[hash_value];
         top[hash_value]->next = entry;
         top[hash_value] = entry;
@@ -352,7 +363,7 @@ void Hash<T>::removeItem(std::string key)
     // create a new node
     Node<T>* entry = table[hash_value];
     Node<T>* head_ref = table[hash_value];
-
+    
     // if the nodes key is not equal to the key or the entry is NULL then we can't find the key
     if (entry == NULL)
     {
@@ -377,11 +388,11 @@ void Hash<T>::removeItem(std::string key)
             // if the node is the first entry in the linked list
             if (head_ref == entry)
             {
-               head_ref = entry->next;
-               table[hash_value] = entry->next;
-               delete entry;
-               break;
-
+                head_ref = entry->next;
+                table[hash_value] = entry->next;
+                delete entry;
+                break;
+                
             }
             // if the next node is not null
             if(entry->next != NULL)
@@ -409,7 +420,7 @@ Node<T>* Hash<T>::getNode(std::string key) {
     Node<T>* entry = table[hash_value];
     // check flag set to false for when we find matches
     bool check = false;
-
+    
     if (entry != nullptr) {
         while (entry != nullptr) {
             if (entry->key == key)
@@ -431,7 +442,7 @@ void Hash<T>::searchItem(std::string key)
     Node<T>* entry = table[hash_value];
     // check flag set to false for when we find matches
     bool check = false;
-
+    
     // if the entry isn't empty
     if (entry != NULL)
     {
@@ -463,6 +474,23 @@ void Hash<T>::searchItem(std::string key)
     {
         std::cout << "No house found." << std::endl;
     }
+}
+template<class T>
+T Hash<T>::returnItem(std::string key) {
+    // create hash key
+    int hash_value = hashFunction(key);
+    // make an entry node
+    Node<T>* entry = table[hash_value];
+    
+    while (entry != nullptr) {
+        // if the check is true let the user know the values assosicated with that key
+        if (entry->key == key)
+            return *(entry->data);
+        // move to the next node
+        entry = entry->next;
+    }
+    
+    return T();
 }
 // get the amount of items in each bucket
 template<class T>
@@ -504,7 +532,7 @@ void Hash<T>::printItemsInBucket(std::string key)
         std::cout << "Empty bucket!" << std::endl;
     }
     else
-    // otherwise print the bucket
+        // otherwise print the bucket
     {
         while (temp != NULL)
         {
@@ -523,18 +551,18 @@ void Hash<T>::printItemsInBucket(std::string key)
 template<class T>
 void Hash<T>::printTable() {
     std::cout << std::left
-        << std::setw(10) << "Index"
-        << std::setw(10) << "Items"
-        << std::setw(10) << "Key" << std::endl << std::endl;
+    << std::setw(10) << "Index"
+    << std::setw(10) << "Items"
+    << std::setw(10) << "Key" << std::endl << std::endl;
     
     // print table contents
     for (int i = 0; i < tableSize; i++) {
         Node<T>* temp = table[i];
         if (temp != nullptr) {
             std::cout << std::left
-                << std::setw(10) << i
-                << std::setw(10) << itemsAtIndex(i)
-                << std::setw(10) << temp->key << std::endl;
+            << std::setw(10) << i
+            << std::setw(10) << itemsAtIndex(i)
+            << std::setw(10) << temp->key << std::endl;
         }
     }
 }
@@ -544,11 +572,11 @@ void Hash<T>::printEntireTable() {
         Node<T>* temp = table[i];
         while (temp != nullptr) {
             std::cout << temp->data->getAddress() << ", "
-                << temp->data->getPrice() << ", "
-                << temp->data->getBeds() << ", "
-                << temp->data->getBaths() << ", "
-                << temp->data->getType() << ", "
-                << temp->data->getArea() << std::endl;
+            << temp->data->getPrice() << ", "
+            << temp->data->getBeds() << ", "
+            << temp->data->getBaths() << ", "
+            << temp->data->getType() << ", "
+            << temp->data->getArea() << std::endl;
             temp = temp->next;
         }
     }
@@ -556,11 +584,12 @@ void Hash<T>::printEntireTable() {
 
 // constructor
 template<class T>
-Hash<T>::Hash()
+Hash<T>::Hash(std::string db)
 {
+    database = db;
     table = new Node<T>* [tableSize];
     top = new Node<T>* [tableSize];
-
+    
     for(int i = 0; i < tableSize; i++)
     {
         table[i] = NULL;
@@ -588,3 +617,4 @@ Hash<T>::~Hash()
 }
 
 #endif
+

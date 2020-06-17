@@ -13,6 +13,8 @@
 #include <iostream>
 #include <iomanip>
 
+
+
 class House {
 private:
     std::string address;
@@ -21,9 +23,15 @@ private:
     std::string type;
     int area;
     
+    static bool printPrice;
+    
 public:
     House();
     House(std::string, long, int, int, std::string, int);
+    
+    static void setPrintMode(bool printP) {
+        printPrice = printP;
+    }
     
     void setAddress(std::string a) {
         address = a;
@@ -61,6 +69,8 @@ public:
     int getArea() const {
         return area;
     }
+    
+    void print(std::ostream&, bool) const;
     
     bool operator == (const House&) const;
     bool operator < (const House&) const;
