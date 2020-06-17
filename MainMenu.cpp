@@ -70,10 +70,12 @@
             declare int variables price, beds, baths, and area
             switch userResponse:
                 case 1:
-                    prompt user to enter address, store it in key
-                    if the address matches a house already stored:
-                        print to the user that it's already stored
-                        break out of switch
+                    prompt user to enter address
+                    while cannot store in key
+                        clearInput
+                    if the data already in inventory
+                        print that the house is already in inventory
+                        break
                     else:
                         prompt user to enter price
                         while the input cannot be taken into an int:
@@ -94,20 +96,93 @@
                             clearInput
                         create pointer to house toInsert with user given attributes
                         insert the item in the dataHash, dataTree, and dataInv
+                        increment the numInserted
+                        break
                 case 2:
-                    prompt the user to enter the address, store it in key
-                    if the address matches a house already stored:
-                        print to the user that it's already stored
-                        break out of switch
+                    prompt the user to enter the address
+                    while cannot store in key
+                        clearInput
+                    if the data already in inventory
+                        print that the house is already in inventory
+                        break
                     else:
-                        assign the user input to key
                         initialize result to the pointer to the node in the hash table with given key
                         if result is not nullptr:
                             declare House tmp
                             set the price of tmp by retrieving the price from the pointer to the node
-                            remove the
-                    
-    
+                            remove the object sharing address and price in tmp
+                            print that the house was deleted
+                        remove the object with the address key from dataHash
+                        remove the object with the address key from inventory
+                        break
+                case 3:
+                    prompt user to enter address, set user input to key
+                    use dataHash search item function with key as parameter
+                    break
+                case 4:
+                    set innerFlag to true
+                    while the innerFlag is not false:
+                        print menu for case 4
+                        while the userResponse is not a number, try assigning user input to userResponse:
+                            clearInput
+                        switch base on userResponse:
+                            case 1:
+                                print the table with dataHash printTable function
+                                break
+                            case 2:
+                                prompt user to input bucket key
+                                clearInput
+                                print items in bucket with dataHash printItemsInBucket function
+                                break
+                            case 3:
+                                print all bucket items with dataHash printEntireTable function
+                                break
+                            case 4:
+                                set innerFlag to false
+                                break
+                            default:
+                                print that input isn't valid
+                                break
+                    break
+                case 5:
+                    set printMode to print price first
+                    print houses sorted by price with dataTree printBySortedKey function
+                    reset printMode
+                    break
+                case 6:
+                    set printMode to print price first
+                    declare min and max integers
+                    prompt user to input minimum price
+                    while the input is not valid for min:
+                        prompt user for input
+                        clearInput
+                    prompt user to input maximum price
+                    while the input is not valid for max:
+                        prompt user for input
+                        clearInput
+                    declare minHouse house object
+                    set the price of minHouse to min
+                    declare maxHouse house object
+                    set the price of minHouse to max
+                    use the dataTree printInRange function
+                    reset printMode
+                    break
+                case 7:
+                    set printMode to print price first
+                    use the dataTree printIndentedTree function
+                    reset printMode
+                    break
+                case 8:
+                    print efficiency statistics with functions from the hashTable and dataTree
+                    break
+                case 9:
+                    set the flag to false
+                    break
+                default:
+                    state that input is not valid
+                    break
+    system pause using while loop and string validation
+    return 0
  */
 
 #include <iostream>
@@ -124,7 +199,7 @@ using namespace std;
 
 const int NUM_FIELDS = 6;
 int numData = 0;
-Hash<House>* dataHash = new Hash<House>();
+Hash<House>* dataHash;
 BST<House> dataTree;
 
 // The following array is for the inventory:
@@ -173,7 +248,6 @@ void createDataFromCSV() {
     int totalData = 0;
     while (getline(helperCSVFile, helperCntData))
         ++totalData;
-    --totalData;
     
     cout << "Enter the number of houses to read from the CSV file: ";
     while (!(cin >> numData) || numData > totalData || numData < 0) {
@@ -181,17 +255,15 @@ void createDataFromCSV() {
         clearInput();
     }
     
-    dataInv.setHouseData(filePath);
+    dataHash = new Hash<House>(filePath);
+    //dataInv.setHouseData(filePath);
     
     // look over header line that takes up one from numData
-    for (int i = 0; i < numData + 1; i++) {
+    for (int i = 0; i < numData; i++) {
         try {
             // read line and set it to inputStr
             string inputStr;
             getline(csvFile, inputStr);
-            
-            // skip the header line of csv file
-            if (i == 0) continue;
 
             CSVParser->setData(0, inputStr);    // 0 signifies 1 data entry set
             string* curData = CSVParser->getData(0);
@@ -208,13 +280,13 @@ void createDataFromCSV() {
             dataTree.insert(newHouse);
             
             // adding house to inventory's array: set to false to prevent rewriting of file
-            dataInv.addHouse(*newHouse, false);
+            //dataInv.addHouse(*newHouse, false);
         } catch (const std::invalid_argument& e) {
             cout << "Error parsing data " << i + 1 << " (" << e.what() << "). Data is not added." << endl;
         }
     }
     
-    dataInv.updateHouseData();
+    dataHash->updateData();
     
     delete CSVParser;
     clearInput();
@@ -264,13 +336,11 @@ int main() {
                 // address
                 cout << "Enter the address: ";
                 getline(cin, key);
-
-                if (dataInv.searchHouse(key).getAddress() == key) {
+                if (dataHash->returnItem(key).getAddress() == key) {
                     cout << "House at " << key << " already in inventory!" << endl;
                     break;
                 } else {
                     // price
-
                     cout << "Enter the price: ";
                     while (!(cin >> price)) // while loop to ensure user puts in int values
                     {
@@ -278,7 +348,6 @@ int main() {
                         clearInput();
                     }
 
-                    clearInput();
                     // beds
                     cout << "Enter the number of beds: ";
                     while (!(cin >> beds)) // while loop to ensure user puts in int values
@@ -287,7 +356,6 @@ int main() {
                         clearInput();
                     }
 
-                    clearInput();
                     // baths
                     cout << "Enter the number of baths: ";
                     while (!(cin >> baths)) // while loop to ensure user puts in int values
@@ -309,14 +377,15 @@ int main() {
                         cout << "Invalid input. Please enter a whole number: ";
                         clearInput();
                     }
-
+                    
                     clearInput();
 
                     // add item to hash table, bst, and inventory
                     House* toInsert = new House(key, price, beds, baths, type, area);
                     dataHash->addItem(key, toInsert);
+                    dataHash->printEntireTable();
                     dataTree.insert(toInsert);
-                    dataInv.addHouse(*toInsert);
+                    dataHash->updateData();
                     
                     ++numInserted;
                     break;
@@ -324,8 +393,7 @@ int main() {
             } case 2: {
                 cout << "Enter the address: ";
                 getline(cin, key);
-
-                if (dataInv.searchHouse(key).getAddress() != key) {
+                if (dataHash->returnItem(key).getAddress() != key) {
                     cout << "House at " << key << " not found!" << endl;
                     break;
                 } else {
@@ -341,9 +409,9 @@ int main() {
                     
                     // remove from hash
                     dataHash->removeItem(key);
-                    
+                    dataHash->updateData();
                     // remove from inventory
-                    dataInv.deleteHouse(key);
+                    //dataInv.deleteHouse(key);
                     break;
                 }
             } case 3: {
@@ -392,11 +460,14 @@ int main() {
                 }
                 break;
             } case 5: {
+                House::setPrintMode(true);
                 dataTree.printBySortedKey(cout);
+                House::setPrintMode(false);
                 break;
             } case 6: {
+                House::setPrintMode(true);
                 // initialize min and max
-                long min, max;
+                int min, max;
                 cout << "Enter the minimum price in the range: ";
                 while (!(cin >> min)) {
                     cout << "Invalid input. Please try again: ";
@@ -415,9 +486,12 @@ int main() {
                 // pass min and max housing objects into printInRange
                 dataTree.printInRange(minHouse, maxHouse);
                 clearInput();
+                House::setPrintMode(false);
                 break;
             } case 7: {
+                House::setPrintMode(true);
                 dataTree.printIndentedTree(cout);
+                House::setPrintMode(false);
                 break;
             } case 8: {
                 cout << endl << setprecision(2) << fixed

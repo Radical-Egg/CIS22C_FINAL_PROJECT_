@@ -8,6 +8,8 @@
 
 #include "House.h"
 
+bool House::printPrice = false;
+
 bool House::operator == (const House& right) const {
     if (address == right.getAddress())
         return true;
@@ -58,11 +60,20 @@ House::House(std::string adrs, long p, int bds, int bths, std::string t, int a) 
 }
 
 std::ostream& operator << (std::ostream& out, const House& right) {
-    out << std::right << "$" << std::setw(8) << right.price << ": "
-        << right.address << ", "
-        << right.beds << ", "
-        << right.baths << ", "
-        << right.type << ", "
-        << right.area;
+    if (House::printPrice) {
+        out << "$" << right.getPrice() << ": "
+        << right.getAddress() << ","
+        << right.getBeds() << ","
+        << right.getBaths() << ","
+        << right.getType() << ","
+        << right.getArea();
+    }
+    out << right.getAddress() << ","
+        << right.getPrice() << ","
+        << right.getBeds() << ","
+        << right.getBaths() << ","
+        << right.getType() << ","
+        << right.getArea();
+    
     return out;
 }
