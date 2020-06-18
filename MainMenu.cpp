@@ -377,7 +377,6 @@ int main() {
                     // add item to hash table, bst, and inventory
                     House* toInsert = new House(key, price, beds, baths, type, area);
                     dataHash->addItem(key, toInsert);
-                    dataHash->printEntireTable();
                     dataTree.insert(toInsert);
                     dataHash->updateData();
                     
