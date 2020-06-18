@@ -466,6 +466,7 @@ int main() {
                     cout << "Invalid input. Please try again: ";
                     clearInput();
                 }
+																clearInput();
                 cout << "Enter the maximum price in the range: ";
                 while (!(cin >> max)) {
                     cout << "Invalid input. Please try again: ";
