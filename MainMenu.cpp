@@ -191,9 +191,9 @@
 #include <fstream>
 #include <limits>
 #include "hash.h"
+#include "House.h"
 #include "BST.h"
 #include "Parser.h"
-#include "Inventory.h"
 
 using namespace std;
 
@@ -201,12 +201,6 @@ const int NUM_FIELDS = 6;
 int numData = 0;
 Hash<House>* dataHash;
 BST<House> dataTree;
-
-// The following array is for the inventory:
-// - doesn't matter what House array size initialized to since addHouse function automatically increments the size, similar to a vector
-// - dataInv has empty string which will be changed to filePath in the createData function
-House* inventory = new House[25];
-Inventory dataInv(25, inventory, 0, "");
 
 /*
  Clears the input and ignores excess input.
@@ -256,7 +250,6 @@ void createDataFromCSV() {
     }
     
     dataHash = new Hash<House>(filePath);
-    //dataInv.setHouseData(filePath);
     
     // look over header line that takes up one from numData
     for (int i = 0; i < numData; i++) {
@@ -278,9 +271,6 @@ void createDataFromCSV() {
             
             // adding house to BST
             dataTree.insert(newHouse);
-            
-            // adding house to inventory's array: set to false to prevent rewriting of file
-            //dataInv.addHouse(*newHouse, false);
         } catch (const std::invalid_argument& e) {
             cout << "Error parsing data " << i + 1 << " (" << e.what() << "). Data is not added." << endl;
         }
@@ -483,6 +473,7 @@ int main() {
                 minHouse.setPrice(min);
                 House maxHouse;
                 maxHouse.setPrice(max);
+                
                 // pass min and max housing objects into printInRange
                 dataTree.printInRange(minHouse, maxHouse);
                 clearInput();

@@ -1,12 +1,9 @@
 /*
- Lab Number: 04
- Group members: Nguyen Cong Nhat Le, Kevin Jin
- Name: Nguyen Cong Nhat Le
- Description:
- The assignment is to demonstrate the use of a defined templated linked list, stack, and
- queue of integers with all methods of the ADTs through the console.
+Nguyen Nhat Cong Le
 
-  Grade Kevin's effort: HIGH
+lab number: final project
+authors: Kevin Jin, Lance Carrido, Jaymen Luther, Nguyen Nhat Cong Le
+description: The project is a house listing service providing the address, price, beds, baths, type, and area of houses in San Jose, with options to filter by address and price.
 */
 
 #ifndef SINGLYLINKEDLIST_H

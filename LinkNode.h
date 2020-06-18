@@ -1,12 +1,9 @@
 /*
- Lab Number: 04
- Group members: Nguyen Cong Nhat Le, Kevin Jin
- Name: Nguyen Cong Nhat Le
- Description:
- The assignment is to demonstrate the use of a defined templated linked list, stack, and
- queue of integers with all methods of the ADTs through the console.
+Nguyen Nhat Cong Le
 
-  Grade Kevin's effort: HIGH
+lab number: final project
+authors: Kevin Jin, Lance Carrido, Jaymen Luther, Nguyen Nhat Cong Le
+description: The project is a house listing service providing the address, price, beds, baths, type, and area of houses in San Jose, with options to filter by address and price.
 */
 
 #ifndef LINKNODE_H
@@ -20,40 +17,10 @@ public:
     LinkNode();
 };
 
-///*
-//Base case when the passed in object is not a pointer.
-//Pre: a - object of type T
-//Post: None
-//Return: None
-//*/
-//template<class T>
-//void deleteElement(T a) {
-//    return;
-//}
-//
-///*
-//Function to delete pointer to an object, pointer to a pointer to an object, etc.
-//Pre: a - pointer to object of type T
-//Post: None
-//Return: None
-//*/
-//template<class T>
-//void deleteElement(T* a) {
-//    // dereferences
-//    deleteElement(*a);
-//    delete a;
-//}
-
 template<class T>
 LinkNode<T>::LinkNode() {
     next = nullptr;
 }
-
-//template<class T>
-//LinkNode<T>::~LinkNode() {
-//    /*deleteElement(data);*/
-//    delete next;
-//}
 
 #endif
 
