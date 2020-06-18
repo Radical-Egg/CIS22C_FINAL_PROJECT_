@@ -1,7 +1,9 @@
 /*
-lab number: 05
-authors: Nguyen Cong Nhat Le, Kevin Jin
-description: Implement a BST with the usual operations and four traversal methods, reading Currency objects from an input file with data validation; performed operations will output to both the console and an output file.
+Nguyen Nhat Cong Le
+
+lab number: final project
+authors: Kevin Jin, Lance Carrido, Jaymen Luther, Nguyen Nhat Cong Le
+description: The project is a house listing service providing the address, price, beds, baths, type, and area of houses in San Jose, with options to filter by address and price.
 */
 
 #ifndef BST_H
@@ -11,115 +13,156 @@ description: Implement a BST with the usual operations and four traversal method
 #include "Queue.h"
 #include <iostream>
 #include <cctype>
+
 template<typename T>
 class BST {
 private:
     BSTNode<T>* root;
     int size;
-    void deleteAllNodesHelper(BSTNode<T>*);
     int insertCnt;
-    int searchCnt;
+    void deleteAllNodesHelper(BSTNode<T>*);
 public:
     //constructor
     BST();
     ~BST() {
         deleteAllNodes();
     }
-    void setAllNullptr(BSTNode<T>*);
+    
+    /*
+    Deletes all nodes in the BST.
+    Pre: None
+    Post: all nodes and data within nodes deleted
+    Return: None
+    */
     void deleteAllNodes();
-    void deleteSetNull(T*);
+    
     /*
     Add object to the tree
-    Pre: T object
-    Post: current, curParent BSTNode pointers, root, size
+    Pre: pointer to T object
+    Post: pointer to object T added to BST based off its value
     return: none
     */
     void insert(T*);
+    
+    /*
+    Returns the insertCnt value.
+    Pre: None
+    Post: None
+    Return: insertCnt - int value representing number of comparisons when inserting
+    */
     int getInsertCnt() {
         return insertCnt;
     }
+    
     /*
     Search for object in the tree
-    Pre: T object
-    Post: current BSTNode pointers, root
+    Pre: pointer to T object
+    Post: None
     Return: true if found, otherwise, return false
     */
     bool search(T*);
-    int getSearchCnt() {
-        return searchCnt;
-    }
+    
     /*
-    Remove object from the tree
-    Pre: T object
-    Post: current, curParent, max, maxParent BSTNode pointers, root, size
+    Remove pointer from the BST
+    Pre: pointer to T object
+    Post: T object with contents pointed to by pointer removed from BST
     return: none
     */
     void remove(T*);
+    
     /*
     Pass to ostream breath-first, pre-order, in-order, post-oder traversal
-    Pre: ostream&
-    Post: breadthFirst, inOrder, preOrder, postOrder functions
+    Pre: ostream& out - object the traversals outputs are passed into
+    Post: None
     return: none
     */
     void print(std::ostream&);
+    
     /*
+    Getter for size.
     Pre: None
-    Post:  size
-    return: size of the tree
+    Post: None
+    return: size - int representing nodes in the tree
     */
     int count() {
         return size;
     }
+
     /*
-    Pre: None
-    Post:  size
-    return: true if the tree is empty, otherwise false
-    */
-    bool isEmpty() {
-        return size == 0;
-    }
-    /*
-    Empty the tree
-    Pre: None
-    Post:  root, remove(), isEmpty()
+    Pass to ostream breath-first traversal.
+    Pre: ostream& out - ostream object reference the breadth-first print is passed to
+         BSTNode<T>* node - the node to start traversal
+    Post: None
     return: None
     */
-    void empty();
-    /*
-    Pass to ostream breath-first traversal
-    Pre: ostream&, BSTNode<T>* node
-    Post: Queue
-    return: none
-    */
     void breadthFirst(std::ostream&, BSTNode<T>* node);
+    
     /*
-    Pass to ostream in-order traversal
-    Pre: ostream&, BSTNode<T>* node
-    Post: Queue
-    return: none
+    Pass to ostream in-order traversal.
+    Pre: ostream& out - ostream object reference the breadth-first print is passed to
+         BSTNode<T>* node - the node to start traversal
+    Post: None
+    return: None
     */
     void printBySortedKey(std::ostream& out) {
         inOrder(out, root);
     }
-    void inOrder(std::ostream&, BSTNode<T>* node);
+    
     /*
-    Pass to ostream pre-order traversal
-    Pre: ostream&, BSTNode<T>* node
-    Post: Queue
-    return: none
+    Pass to ostream in-order traversal.
+    Pre: ostream& out - ostream object reference the breadth-first print is passed to
+         BSTNode<T>* node - the node to start traversal
+    Post: None
+    return: None
+    */
+    void inOrder(std::ostream&, BSTNode<T>* node);
+    
+    /*
+    Pass to ostream indented pre-order traversal.
+    Pre: ostream& out - ostream object reference the breadth-first print is passed to
+         BSTNode<T>* node - the node to start traversal
+    Post: None
+    return: None
     */
     void printIndentedTree(std::ostream& out) {
         preOrder(out, root, "\t");
     }
-    void preOrder(std::ostream&, BSTNode<T>* node, std::string indent);
+    
     /*
-    Pass to ostream post-order traversal
-    Pre: ostream&, BSTNode<T>* node
-    Post: Queue
-    return: none
+    Pass to ostream indented pre-order traversal.
+    Pre: ostream& out - ostream object reference the breadth-first print is passed to
+         BSTNode<T>* node - the node to start traversal
+    Post: None
+    return: None
+    */
+    void preOrder(std::ostream&, BSTNode<T>* node, std::string indent);
+    
+    /*
+    Pass to ostream post-order traversal.
+    Pre: ostream& out - ostream object reference the breadth-first print is passed to
+         BSTNode<T>* node - the node to start traversal
+    Post: None
+    return: None
     */
     void postOrder(std::ostream&, BSTNode<T>* node);
+    
+    /*
+    Traversal through objects between min and max printed to console.
+    Pre: BSTNode<T>* node - the node to start traversal
+         T min - object with minimum value
+         T max - object with maximum value
+    Post: objects between min and max printed
+    return: None
+    */
     void printInRange(BSTNode<T>* node, T min, T max);
+    
+    /*
+    Wrapper function for 3 parameter printInRange.
+    Pre: T min - object with minimum value
+         T max - object with maximum value
+    Post: objects between min and max printed
+    return: None
+    */
     void printInRange(T min, T max);
 };
 template<typename T>
@@ -127,8 +170,8 @@ BST<T>::BST() {
     root = nullptr;
     size = 0;
     insertCnt = 0;
-    searchCnt = 0;
 }
+
 template<typename T>
 void BST<T>::printInRange(BSTNode<T>* node, T min, T max)
 {
@@ -149,6 +192,7 @@ void BST<T>::printInRange(T min, T max)
 {
     printInRange(root, min, max);
 }
+
 template<typename T>
 void BST<T>::insert(T* data) {
     if (root != nullptr)
@@ -188,6 +232,7 @@ void BST<T>::insert(T* data) {
         size++;
     }
 }
+
 template<typename T>
 void BST<T>::remove(T* data)
 {
@@ -254,6 +299,7 @@ void BST<T>::remove(T* data)
         }
     }
 }
+
 template<typename T>
 void BST<T>::deleteAllNodesHelper(BSTNode<T>* node) {
     if (node != nullptr) {
@@ -262,10 +308,12 @@ void BST<T>::deleteAllNodesHelper(BSTNode<T>* node) {
         delete node;
     }
 }
+
 template<typename T>
 void BST<T>::deleteAllNodes() {
     deleteAllNodesHelper(root);
 }
+
 template<typename T>
 bool BST<T>::search(T* data) {
     if (root != nullptr)
@@ -283,6 +331,7 @@ bool BST<T>::search(T* data) {
     }
     return false;
 }
+
 template<typename T>
 void BST<T>::inOrder(std::ostream& output, BSTNode<T>* node) {
     if (node != nullptr)
@@ -293,21 +342,20 @@ void BST<T>::inOrder(std::ostream& output, BSTNode<T>* node) {
     }
 }
 
-int indentCt = 0;
 template<typename T>
 void BST<T>::preOrder(std::ostream& output, BSTNode<T>* node, std::string indent){
     if (node != nullptr)
     {
         output << *node->getData() << std::endl;
         std::string indentLeft = indent;
-        if ((node->getLeftChild() != nullptr) )
+        if (node->getLeftChild() != nullptr)
         {
             indentLeft += '\t';
             output << indent;
         }
         preOrder(output, node->getLeftChild(), indentLeft);
         std::string indentRight = indent;
-        if ((node->getRightChild() != nullptr))
+        if (node->getRightChild() != nullptr)
         {
             indentRight += '\t';
             output << indent;
@@ -315,6 +363,7 @@ void BST<T>::preOrder(std::ostream& output, BSTNode<T>* node, std::string indent
         preOrder(output, node->getRightChild(), indentRight);
     }
 }
+
 template<typename T>
 void BST<T>::postOrder(std::ostream& output, BSTNode<T>* node) {
     if (node != nullptr)
@@ -322,82 +371,6 @@ void BST<T>::postOrder(std::ostream& output, BSTNode<T>* node) {
         postOrder(output, node->getLeftChild());
         postOrder(output, node->getRightChild());
         output << *node->getData() << std::endl;
-    }
-}
-template<typename T>
-void BST<T>::setAllNullptr(BSTNode<T>* node) {
-    if (node != nullptr)
-    {
-        setAllNullptr(node->getLeftChild());
-        setAllNullptr(node->getRightChild());
-        node->setData(nullptr);
-    }
-}
-
-template<typename T>
-void BST<T>::deleteSetNull(T* data)
-{
-    if (root != nullptr)
-    {
-        BSTNode<T>* curParent = nullptr;
-        BSTNode<T>* current = root;
-        while (current != nullptr)
-        {
-            if (*(current->getData()) < *data)
-            {
-                curParent = current;
-                current = current->getRightChild();
-            }
-            else if (*(current->getData()) > * data)
-            {
-                curParent = current;
-                current = current->getLeftChild();
-            }
-            else
-                break;
-        }
-        if (current == nullptr)
-            return;
-        if (current->getLeftChild() == nullptr)
-        {
-            if (curParent != nullptr)
-            {
-                if (*curParent->getData() < *current->getData())
-                    curParent->setRightChild(current->getRightChild());
-                else
-                    curParent->setLeftChild(current->getRightChild());
-                std::cout << current->getData() << std::endl;
-                current->getData() = nullptr;
-                delete current;
-                size--;
-            }
-            else
-            {
-                BSTNode<T>* oldRoot = root;
-                root = root->getRightChild();
-                oldRoot->getData() = nullptr;
-                delete oldRoot;
-                size--;
-            }
-        }
-        else
-        {
-            BSTNode<T>* max = current->getLeftChild();
-            BSTNode<T>* maxParent = current;
-            while (max->getRightChild())
-            {
-                maxParent = max;
-                max = max->getRightChild();
-            }
-            current->setData(max->getData());
-            if (*max->getData() > * maxParent->getData())
-                maxParent->setRightChild(max->getLeftChild());
-            else
-                maxParent->setLeftChild(max->getLeftChild());
-            max->getData() = nullptr;
-            delete max;
-            size--;
-        }
     }
 }
 
@@ -419,12 +392,6 @@ void BST<T>::breadthFirst(std::ostream& output, BSTNode<T>* node){
         else
             node = nullptr;
     }
-}
-
-template<typename T>
-void BST<T>::empty() {
-    while (!isEmpty())
-        remove(root->getData());
 }
 
 template<typename T>

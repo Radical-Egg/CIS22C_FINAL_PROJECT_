@@ -13,20 +13,32 @@ private:
     T* data;
     BSTNode<T>* leftChild;
     BSTNode<T>* rightChild;
+    
 public:
     //constructor
     BSTNode() {
         leftChild = nullptr;
         rightChild = nullptr;
     }
+    ~BSTNode();
     /*
     Return data of the BSTNode
     Pre: None
     Post: None
     return: T object
     */
+    T getData(bool isHouse) {
+        if (isHouse) {
+            if (data != nullptr)
+                return data->getPrice();
+        } else {
+            if (data != nullptr)
+                return data;
+            return nullptr;
+        }
+    }
     T* getData() {
-        if(data != nullptr)
+        if (data != nullptr)
             return data;
         return nullptr;
     }
@@ -79,5 +91,12 @@ public:
         rightChild = right;
     }
 };
-#endif // !BSTNODE_H
 
+template<class T>
+BSTNode<T>::~BSTNode() {
+    data = nullptr;
+    leftChild = nullptr;
+    rightChild = nullptr;
+}
+
+#endif // !BSTNODE_H
