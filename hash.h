@@ -32,7 +32,7 @@ class Hash {
 private:
     std::string database;
     int nodeCnt = 0;
-    double loadFactorLimit = 0.75;
+    double loadFactorLimit = 0.51;
     int tableSize = 50;
     // table
     Node<T>** table;
