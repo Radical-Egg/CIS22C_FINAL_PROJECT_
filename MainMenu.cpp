@@ -337,6 +337,8 @@ int main() {
                         cout << "Invalid input. Please enter a whole number: ";
                         clearInput();
                     }
+                    
+                    clearInput();
 
                     // beds
                     cout << "Enter the number of beds: ";
@@ -345,6 +347,8 @@ int main() {
                         cout << "Invalid input. Please enter a whole number: ";
                         clearInput();
                     }
+                    
+                    clearInput();
 
                     // baths
                     cout << "Enter the number of baths: ";
