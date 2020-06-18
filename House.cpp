@@ -115,12 +115,14 @@ std::ostream& operator << (std::ostream& out, const House& right) {
         << right.getType() << ","
         << right.getArea();
     }
-    out << right.getAddress() << ","
-        << right.getPrice() << ","
-        << right.getBeds() << ","
-        << right.getBaths() << ","
-        << right.getType() << ","
-        << right.getArea();
+    else {
+        out << right.getAddress() << ","
+            << right.getPrice() << ","
+            << right.getBeds() << ","
+            << right.getBaths() << ","
+            << right.getType() << ","
+            << right.getArea();
+    }
     
     return out;
 }
