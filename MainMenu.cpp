@@ -193,7 +193,6 @@
 #include "hash.h"
 #include "BST.h"
 #include "Parser.h"
-#include "Inventory.h"
 
 using namespace std;
 
@@ -206,7 +205,6 @@ BST<House> dataTree;
 // - doesn't matter what House array size initialized to since addHouse function automatically increments the size, similar to a vector
 // - dataInv has empty string which will be changed to filePath in the createData function
 House* inventory = new House[25];
-Inventory dataInv(25, inventory, 0, "");
 
 /*
  Clears the input and ignores excess input.
@@ -257,12 +255,15 @@ void createDataFromCSV() {
     
     dataHash = new Hash<House>(filePath);
     //dataInv.setHouseData(filePath);
-    
-    // look over header line that takes up one from numData
+
+    // Skip header line
+    string inputStr;
+    getline(csvFile, inputStr);
+
     for (int i = 0; i < numData; i++) {
         try {
             // read line and set it to inputStr
-            string inputStr;
+            
             getline(csvFile, inputStr);
 
             CSVParser->setData(0, inputStr);    // 0 signifies 1 data entry set
