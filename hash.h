@@ -1,4 +1,10 @@
-// Jaymen Luther
+/*
+Jaymen Luther
+
+lab number: final project
+authors: Kevin Jin, Lance Carrido, Jaymen Luther, Nguyen Nhat Cong Le
+description: The project is a house listing service providing the address, price, beds, baths, type, and area of houses in San Jose, with options to filter by address and price.
+*/
 
 #include <iostream>
 #include <string>
@@ -22,8 +28,7 @@ struct Node
 };
 
 template<class T>
-class Hash
-{
+class Hash {
 private:
     std::string database;
     int nodeCnt = 0;
@@ -33,8 +38,8 @@ private:
     Node<T>** table;
     // pointer to top
     Node<T>** top;
+    
     /*
-     
      int hashFunction(std::string key);
      get hash key
      Pre:    key.
@@ -44,29 +49,57 @@ private:
     int hashFunction(std::string);
     
 public:
+    
+    // constructor
+    Hash(std::string);
+    
+    Hash(int, double, std::string);
+    
+    // destructor
+    ~Hash();
+    
+    /*
+    Updates the csv data given the file path.
+    Pre: None
+    Post: House data outputted to the csv based in hash table sequence
+    Return: None
+    */
     void updateData();
+    
+    /*
+    Load factor returned by dividng the node count by the table size.
+    Pre: None
+    Post: None
+    Return: load factor = node count / table size
+    */
     double getLoadFactor() {
-        return getNodeCnt() / double(tableSize);
+        return nodeCnt / double(tableSize);
     }
-    Hash(int size, double lfLimit, std::string db){
-        database = db;
-        tableSize = size;
-        loadFactorLimit = lfLimit;
-        table = new Node<T>* [tableSize];
-        top = new Node<T>* [tableSize];
-        
-        for(int i = 0; i < tableSize; i++)
-        {
-            table[i] = NULL;
-            top[i] = NULL;
-        }
-    }
-    int getNodeCnt() {
-        return nodeCnt;
-    }
+    
+    /*
+    Returns the length of the longest linked list.
+    Pre: None
+    Post: None
+    Return: length of longest linked list returned as int
+    */
     int getLongestListSize();
+    
+    /*
+    Returns the average length of the linked list.
+    Pre: None
+    Post: None
+    Return: average length of the linked list returned as double
+    */
     double getAverageListSize();
+    
+    /*
+    Returns the number of collisions.
+    Pre: None
+    Post: None
+    Return: number of collisions returned as int
+    */
     int getNumCollisions();
+    
     /*
      void addItem(std::string key, int price, int beds, int baths, std::string prop_type, int area);
      add item to hash table
@@ -101,6 +134,13 @@ public:
      Return:    None.
      */
     void searchItem(std::string);
+    
+    /*
+    T object specified by key as the string returned.
+    Pre: std::string key - the key to access the data
+    Post: None
+    Return: T object with given key returned
+    */
     T returnItem(std::string);
     /*
      
@@ -111,25 +151,30 @@ public:
      Return:    index
      */
     int itemsAtIndex(int);
+    
     /*
-     
-     void printItemsInBucket(std::string key);
-     print the items in any given bucket
-     Pre:    std::string key
-     Post:    None.
-     Return:    None.
-     */
+    void printItemsInBucket(std::string key);
+    Print the items in any given bucket
+    Pre: std::string key - key to specify the bucket
+    Post: all items in specified bucket displayed
+    Return: None
+    */
     void printItemsInBucket(std::string);
+    
     /*
-     
-     void printTable();
-     print the hash table
-     Pre:    None.
-     Post:    None.
-     Return:    None.
+    Prints the hash table bucket statistics
+    Pre: None
+    Post: hash table bucket statistics printed
+    Return: None
      */
     void printTable();
     
+    /*
+    Prints the entire hash table.
+    Pre: None
+    Post: all hash table data printed
+    Return: None
+    */
     void printEntireTable();
     
     /*
@@ -147,8 +192,14 @@ public:
      top = newTop
      delete old table
      delete top
-     */
-    
+    */
+    /*
+    Adds double the space to of the current hash table to decrease collission.
+    Pre: None
+    Post: - memory allocated to decrease collission
+          - contents copied from original hash table
+    Return: None
+    */
     void reHash() {
         tableSize *= 2;
         Node<T>** newTable = new Node<T> * [tableSize];
@@ -206,13 +257,58 @@ public:
         top = newTop;
         
     }
-    
-    // constructor
-    Hash(std::string);
-    // destructor
-    ~Hash();
-    
 };
+
+// constructor
+template<class T>
+Hash<T>::Hash(std::string db)
+{
+    database = db;
+    table = new Node<T>* [tableSize];
+    top = new Node<T>* [tableSize];
+    
+    for(int i = 0; i < tableSize; i++)
+    {
+        table[i] = NULL;
+        top[i] = NULL;
+    }
+}
+
+// parameterized constructor
+template<class T>
+Hash<T>::Hash(int size, double lfLimit, std::string db) {
+    database = db;
+    tableSize = size;
+    loadFactorLimit = lfLimit;
+    table = new Node<T>* [tableSize];
+    top = new Node<T>* [tableSize];
+        
+    for(int i = 0; i < tableSize; i++) {
+        table[i] = NULL;
+        top[i] = NULL;
+    }
+}
+
+// destructor
+template<class T>
+Hash<T>::~Hash()
+{
+    Node<T>* temp;
+    Node<T>* temp_next;
+    for(int i = 0; i < tableSize; i++)
+    {
+        temp = table[i];
+        while (temp != NULL)
+        {
+            temp_next = temp->next;
+            delete temp->data;
+            delete temp;
+            temp = temp_next;
+        }
+        table[i] = NULL;
+    }
+}
+
 template<class T>
 void Hash<T>::updateData() {
     std::ofstream out;
@@ -579,40 +675,6 @@ void Hash<T>::printEntireTable() {
             << temp->data->getArea() << std::endl;
             temp = temp->next;
         }
-    }
-}
-
-// constructor
-template<class T>
-Hash<T>::Hash(std::string db)
-{
-    database = db;
-    table = new Node<T>* [tableSize];
-    top = new Node<T>* [tableSize];
-    
-    for(int i = 0; i < tableSize; i++)
-    {
-        table[i] = NULL;
-        top[i] = NULL;
-    }
-}
-//destructor
-template<class T>
-Hash<T>::~Hash()
-{
-    Node<T>* temp;
-    Node<T>* temp_next;
-    for(int i = 0; i < tableSize; i++)
-    {
-        temp = table[i];
-        while (temp != NULL)
-        {
-            temp_next = temp->next;
-            delete temp->data;
-            delete temp;
-            temp = temp_next;
-        }
-        table[i] = NULL;
     }
 }
 
